@@ -1,0 +1,10 @@
+{
+  "name": "skillkeel-starter",
+  "description": "Tested guardrail hooks and repo-hygiene skills for Claude Code. Every skill ships with an eval transcript.",
+  "version": "0.1.0",
+  "author": { "name": "Skillkeel", "email": "hi@skillkeel.com" },
+  "homepage": "https://skillkeel.com",
+  "repository": "https://github.com/skillkeel/skillkeel-starter",
+  "license": "MIT",
+  "keywords": ["claude-code", "skills", "hooks", "guardrails", "git", "security"]
+}

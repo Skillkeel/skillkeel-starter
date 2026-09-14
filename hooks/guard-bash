@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# PreToolUse(Bash) guard: blocks destructive commands unless SKILLKEEL_ALLOW_DANGEROUS=1.
+# Input: hook JSON on stdin. Exit 2 + stderr = block (Claude sees the reason). Exit 0 = allow.
+set -u
+input=$(cat)
+cmd=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tool_input",{}).get("command",""))' 2>/dev/null || printf '%s' "$input")
+[ -n "${SKILLKEEL_ALLOW_DANGEROUS:-}" ] && exit 0
+
+block() { printf 'skillkeel guard-bash: blocked (%s). Command: %s\nIf intended, ask the user; they can set SKILLKEEL_ALLOW_DANGEROUS=1 for this session.\n' "$1" "$cmd" >&2; exit 2; }
+
+# Normalise whitespace for matching
+c=$(printf '%s' "$cmd" | tr -s '[:space:]' ' ')
+
+# 1. recursive force delete of root-ish / home / cwd / globs
+printf '%s' "$c" | grep -Eq '(^|[;&| ])rm +(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r)[a-zA-Z]* +(/|~|\$HOME|\.|\*|/[a-z]+)( |$)' && block "rm -rf on root/home/cwd/glob"
+# 2. git history destruction on shared branches / force push
+printf '%s' "$c" | grep -Eq 'git +push +[^|;&]*(--force|-f)( |$)' && ! printf '%s' "$c" | grep -q -- '--force-with-lease' && block "git push --force (use --force-with-lease)"
+printf '%s' "$c" | grep -Eq 'git +(reset +--hard|clean +-[a-zA-Z]*f[a-zA-Z]*|checkout +-- +\.|restore +\.)( |$)' && block "git discards uncommitted work"
+printf '%s' "$c" | grep -Eq 'git +branch +-D ' && block "git branch -D"
+# 3. database / infra wipes
+printf '%s' "$c" | grep -Eiq '(drop +(database|table|schema)|truncate +table|flushall|flushdb)' && block "database wipe"
+printf '%s' "$c" | grep -Eq '(terraform +destroy|kubectl +delete +(ns|namespace)|docker +system +prune +-a|docker +volume +prune)' && block "infra destroy"
+# 4. disk / system
+printf '%s' "$c" | grep -Eq '(^|[;&| ])(mkfs|dd +if=|shred|chmod +-R +777 +/|chown +-R +[^ ]+ +/( |$)|:\(\)\{ *:\|:& *\};:)' && block "disk/system destructive"
+# 5. piping remote scripts into a shell
+printf '%s' "$c" | grep -Eq '(curl|wget)[^|]*\| *(sudo +)?(bash|sh|zsh|python3?)( |$)' && block "remote script piped to shell"
+exit 0

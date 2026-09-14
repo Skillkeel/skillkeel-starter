@@ -1,0 +1,7 @@
+{
+  "name": "skillkeel",
+  "owner": { "name": "Skillkeel", "email": "hi@skillkeel.com" },
+  "plugins": [
+    { "name": "skillkeel-starter", "source": "./", "description": "Tested guardrail hooks and repo-hygiene skills for Claude Code." }
+  ]
+}
