@@ -13,6 +13,8 @@ c=$(printf '%s' "$cmd" | tr -s '[:space:]' ' ')
 
 # 1. recursive force delete of root-ish / home / cwd / globs
 printf '%s' "$c" | grep -Eq '(^|[;&| ])rm +(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r)[a-zA-Z]* +(/|~|\$HOME|\.|\*|/[a-z]+)( |$)' && block "rm -rf on root/home/cwd/glob"
+# 1b. recursive delete where the path is produced by a program (find -exec / xargs): the parser never sees the target
+printf '%s' "$c" | grep -Eq '(-exec +|-execdir +|xargs +([^|;&]* +)?)(sudo +)?rm +(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r|-r|-R)' && block "recursive rm via find -exec/xargs (path hidden from the parser)"
 # 2. git history destruction on shared branches / force push
 printf '%s' "$c" | grep -Eq 'git +push +[^|;&]*(--force|-f)( |$)' && ! printf '%s' "$c" | grep -q -- '--force-with-lease' && block "git push --force (use --force-with-lease)"
 printf '%s' "$c" | grep -Eq 'git +(reset +--hard|clean +-[a-zA-Z]*f[a-zA-Z]*|checkout +-- +\.|restore +\.)( |$)' && block "git discards uncommitted work"
