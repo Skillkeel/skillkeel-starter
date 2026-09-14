@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": { "name": "Skillkeel", "email": "hi@skillkeel.com" },
   "homepage": "https://skillkeel.com",
-  "repository": "https://github.com/skillkeel/skillkeel-starter",
+  "repository": "https://github.com/cursedxp/skillkeel-starter",
   "license": "MIT",
   "keywords": ["claude-code", "skills", "hooks", "guardrails", "git", "security"]
 }

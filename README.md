@@ -34,7 +34,7 @@ This plugin does not overlap with the `superpowers` plugin. That one covers proc
 ## Install
 
 ```
-/plugin marketplace add skillkeel/skillkeel-starter
+/plugin marketplace add cursedxp/skillkeel-starter
 /plugin install skillkeel-starter@skillkeel
 ```
 
