@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "$1"
+set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "${1:-}"
 printf 'test:\n\tpython -m pytest -q\n' > Makefile; echo "# app" > README.md; gi add -A; gi commit -qm "chore: init"
 gi checkout -qb feat/orders
 mkdir -p migrations; echo "ALTER TABLE orders ADD COLUMN note TEXT;" > migrations/0002_note.sql; printf 'def create_order(note=None):\n    return {"note": note}\n' > orders.py; gi add -A; gi commit -qm "feat(orders): add note field"

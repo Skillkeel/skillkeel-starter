@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.270",
+  "startedAt": "2026-09-14T11:27:49.916Z",
+  "durationSeconds": 67,
+  "costUsd": 0.359208,
+  "partial": false,
+  "suite": {
+    "root": "/home/anilozsoy/Documents/ceo/products/skillkeel-starter",
+    "ablation": "none",
+    "caseFilter": "commit-message",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "skillkeel-starter",
+        "version": "0.1.0",
+        "path": "/home/anilozsoy/Documents/ceo/products/skillkeel-starter"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "commit-message",
+      "dir": "evals/commit-message",
+      "source": "mixed",
+      "promptMarkdown": "Use the commit-message skill to commit the staged changes in this repo.",
+      "runsPerCase": 1,
+      "timeoutSeconds": 600,
+      "maxTurns": 12,
+      "graders": [
+        {
+          "name": "committed",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Bash",
+            "input_match": "git commit",
+            "min": 1
+          }
+        },
+        {
+          "name": "no-trailer",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": "trace",
+            "pattern": "Co-Authored-By|Generated with",
+            "flags": "",
+            "match": "not_contains"
+          }
+        },
+        {
+          "name": "quality",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS if the final commit message describes only the staged files (calc.py and test_calc.py), uses an imperative subject, and the skill showed proof via git log after committing. FAIL if it describes unrelated changes, claims tests passed without running them, or never committed.",
+          "config": {
+            "criteria": "PASS if the final commit message describes only the staged files (calc.py and test_calc.py), uses an imperative subject, and the skill showed proof via git log after committing. FAIL if it describes unrelated changes, claims tests passed without running them, or never committed.",
+            "focus": "trace"
+          }
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?commit-message\"",
+            "min": 1
+          }
+        },
+        {
+          "name": "subject-format",
+          "type": "regex",
+          "weight": 2,
+          "config": {
+            "target": "trace",
+            "pattern": "(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\([\\w./-]+\\))?: [^\\n\"]{1,50}",
+            "flags": "",
+            "match": "contains"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 12,
+            "costUsd": 0.359208,
+            "judgeCostUsd": 0.027817,
+            "durationSeconds": 67,
+            "startedAt": "2026-09-14T11:27:49.989Z",
+            "error": null,
+            "tracePath": "/tmp/claude-eval-FO0ImT/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "committed",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Bash called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "no-trailer",
+                "passed": false,
+                "weight": 1,
+                "explanation": "pattern found (expected absent)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "quality",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"77ea54aa-14f6-4d5f-9099-d5898c11fd06\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"uuid\":\"c53409c8-33f6-4f59-a3a4-91bd00b5abf9\",\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\"}\n{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"77ea54aa-14f6-4d5f-9099-d5898c11fd06\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"output\":\"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"SessionStart\\\",\\\"additionalContext\\\":\\\"git: branch=main, uncommitted=2, last=\\\\\\\"639b1ea feat: add calc\\\\\\\". Skillkeel Starter active: guard-bash (blocks destructive shell), secret-scan (blocks credentials in writes). Skills: commit-message, pr-description, claude-md-init, changelog, readme-refresh, dependency-audit, secret-audit, test-gap-finder. Use the Skill tool by name.\\\"}}\\n\",\"stdout\":\"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"SessionStart\\\",\\\"additionalContext\\\":\\\"git: branch=main, uncommitted=2, last=\\\\\\\"639b1ea feat: add calc\\\\\\\". Skillkeel Starter active: guard-bash (blocks destructive shell), secret-scan (blocks credentials in writes). Skills: commit-message, pr-description, claude-md-init, changelog, readme-refresh, dependency-audit, secret-audit, test-gap-finder. Use the Skill tool by name.\\\"}}\\n\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"f70983e0-5049-4608-969a-180bc845571f\",\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\"}\n{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/tmp/claude-eval-FO0ImT/home/cwd\",\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"tools\":[\"Task\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Skill\",\"TaskOutput\",\"TaskStop\",\"ToolSearch\",\"Write\"],\"mcp_servers\":[],\"model\":\"claude-opus-5[1m]\",\"permissionMode\":\"dontAsk\",\"slash_commands\":[\"deep-research\",\"skillkeel-starter:changelog\",\"skillkeel-starter:claude-md-init\",\"skillkeel-starter:commit-message\",\"skillkeel-starter:dependency-audit\",\"skillkeel-starter:pr-description\",\"skillkeel-starter:readme-refresh\",\"skillkeel-starter:secret-audit\",\"skillkeel-starter:test-gap-finder\",\"dataviz\",\"update-config\",\"verify\",\"debug\",\"code-review\",\"simplify\",\"batch\",\"fewer-permission-prompts\",\"doctor\",\"loop\",\"schedule\",\"claude-api\",\"workflow-authoring\",\"run\",\"run-skill-generator\",\"agents\",\"auto-mode-setup\",\"autocompact\",\"clear\",\"color\",\"compact\",\"config\",\"output-style\",\"context\",\"effort\",\"fast\",\"heapdump\",\"init\",\"mcp\",\"model\",\"__remote-workflow\",\"workflow-launch-exec\",\"reload-plugins\",\"reload-skills\",\"rename\",\"security-review\",\"usage\",\"insights\",\"recap\",\"goal\",\"list-agents\",\"team-onboarding\"],\"terminal_slash_commands\":[\"doctor\",\"color\",\"reload-plugins\"],\"apiKeySource\":\"none\",\"claude_code_version\":\"2.1.270\",\"output_style\":\"default\",\"agents\":[\"claude\",\"Explore\",\"general-purpose\",\"Plan\",\"statusline-setup\"],\"skills\":[\"deep-research\",\"skillkeel-starter:changelog\",\"skillkeel-starter:claude-md-init\",\"skillkeel-starter:commit-message\",\"skillkeel-starter:dependency-audit\",\"skillkeel-starter:pr-description\",\"skillkeel-starter:readme-refresh\",\"skillkeel-starter:secret-audit\",\"skillkeel-starter:test-gap-finder\",\"dataviz\",\"update-config\",\"verify\",\"debug\",\"code-review\",\"simplify\",\"batch\",\"fewer-permission-prompts\",\"doctor\",\"loop\",\"schedule\",\"claude-api\",\"workflow-authoring\",\"run\",\"run-skill-generator\"],\"plugins\":[{\"name\":\"skillkeel-starter\",\"path\":\"/home/anilozsoy/Documents/ceo/products/skillkeel-starter\",\"source\":\"skillkeel-starter@inline\",\"version\":\"0.1.0\"}],\"capabilities\":[\"interrupt_receipt_v1\",\"interrupt_cancel_queued_v1\",\"msg_lifecycle_v1\"],\"analytics_disabled\":true,\"product_feedback_disabled\":true,\"uuid\":\"f14549f1-3e6d-4fab-9ae9-74e3aab06300\",\"memory_paths\":{\"auto\":\"/tmp/claude-eval-FO0ImT/config/projects/-tmp-claude-eval-FO0ImT-home-cwd/memory/\"},\"messaging_socket_path\":\"/tmp/claude-eval-FO0ImT/tmp/cc-socks/634425.sock\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FassqHRbkQazqPHCvs\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"I'll use the commit-message skill.\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":9986,\"cache_read_input_tokens\":6694,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":9986},\"output_tokens\":1,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"16a63471-dae1-43df-9935-6bec8bcb5c9c\",\"timestamp\":\"2026-09-14T11:27:52.666Z\",\"request_id\":\"req_011Cf3Fas3j4joYEnzy9nVRP\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FassqHRbkQazqPHCvs\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01Xac2dhuxK2D3i1N8UbxNGA\",\"name\":\"Skill\",\"input\":{\"skill\":\"skillkeel-starter:commit-message\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":9986,\"cache_read_input_tokens\":6694,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":9986},\"output_tokens\":1,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"dcc60c26-d0f6-48e6-94a7-43ada3191fc0\",\"timestamp\":\"2026-09-14T11:27:53.267Z\",\"request_id\":\"req_011Cf3Fas3j4joYEnzy9nVRP\"}\n{\"type\":\"rate_limit_event\",\"rate_limit_info\":{\"status\":\"allowed\",\"resetsAt\":1789402200,\"rateLimitType\":\"five_hour\",\"overageStatus\":\"rejected\",\"overageDisabledReason\":\"org_level_disabled\",\"isUsingOverage\":false,\"unifiedWindows\":{\"five_hour\":{\"utilization\":0.11,\"resetsAt\":1789402200},\"seven_day\":{\"utilization\":0.43,\"resetsAt\":1789441200}}},\"uuid\":\"20ab8028-9a14-447c-96bd-b4eea5a43718\",\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\"}\n{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01Xac2dhuxK2D3i1N8UbxNGA\",\"content\":\"Launching skill: skillkeel-starter:commit-message\"}]},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"9730bab4-45c1-4db9-909a-daa15458728f\",\"timestamp\":\"2026-09-14T11:27:53.292Z\",\"tool_use_result\":{\"success\":true,\"commandName\":\"skillkeel-starter:commit-message\"}}\n{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Base directory for this skill: /home/anilozsoy/Documents/ceo/products/skillkeel-starter/skills/commit-message\\n\\n# commit-message\\n\\nWrite commit messages from evidence (the diff), not from recollection.\\n\\n## Procedure\\n1. Run `git status --porcelain` and `git diff --cached --stat`. If nothing is staged, ask whether to stage all tracked changes (`git add -u`) or specific paths. Never `git add -A` silently (untracked junk, secrets).\\n2. Read the staged diff: `git diff --cached`. If it exceeds ~400 lines, read `--stat` plus the hunks of the 5 largest files.\\n3. Classify the change: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`. Pick ONE. If the diff mixes types, say so and offer to split into two commits.\\n4. Scope = the top-level directory or module most touched (`auth`, `api`, `cli`). Omit when the change is cross-cutting.\\n5. Subject: imperative, ≤ 50 chars, no trailing period. `fix(auth): reject expired refresh tokens`.\\n6. Body only when the *why* is not obvious from the diff: 1–3 lines, wrap at 72. Reference issues as `Refs #123` / `Closes #123` on their own line.\\n7. Show the message, then commit with a heredoc so newlines survive:\\n   ```bash\\n   git commit -m \\\"$(cat <<'MSG'\\n   fix(auth): reject expired refresh tokens\\n\\n   Tokens past `exp` were accepted because the check used `<` instead of `<=`.\\n   Closes #412\\n   MSG\\n   )\\\"\\n   ```\\n8. Print `git log -1 --stat` as proof.\\n\\n## Rules\\n- Never describe changes that are not in the staged diff.\\n- Never include secrets, tokens, or internal URLs in the message.\\n- Do not add \\\"Co-Authored-By\\\" or tool attribution unless the repo's CONTRIBUTING or the user asks for it.\\n- If tests were not run, do not claim they pass in the message.\\n\\n## Eval\\n`evals/commit-message/` — fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.\\n\"}]},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"62eb9f8d-5d65-4d06-8d56-4b44122c6997\",\"timestamp\":\"2026-09-14T11:27:53.289Z\",\"isSynthetic\":true}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":50,\"estimated_tokens_delta\":50,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"e52b62c3-9876-4408-94b8-a1072942cfdd\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":150,\"estimated_tokens_delta\":100,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"384cd368-eab6-4a67-8c2b-4df7e4f2048f\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":250,\"estimated_tokens_delta\":100,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"417abbf3-5716-46bc-8599-ca4ccf52645d\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":285,\"estimated_tokens_delta\":35,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"a86965c5-8c33-46bc-9597-1c821697693a\"}\n[…43 messages elided…]\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":50,\"estimated_tokens_delta\":50,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"cebd7a9d-91d2-40c1-be1f-3b3e72ab199a\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":100,\"estimated_tokens_delta\":50,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"73c8bef4-5a7b-4542-8180-c1e35fbfd8ea\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":200,\"estimated_tokens_delta\":100,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"ebf5343f-f441-4c6a-a046-78e8e978ac82\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":267,\"estimated_tokens_delta\":67,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"6ffe8016-5992-43c2-a638-36ac7ef5f359\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FeAcjNqwGw2s2EPfsw\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"CAISowgKpgEIERgCKkCEjNTCoIYvtypCQng/1NfdrHdGmyeWvfw/gZQfmR28f5w7fRI5ak6cabjVPgBPbgwU7dbbbJywPsBWwSAAIiNEMg1jbGF1ZGUtb3B1cy01OAFCCHRoaW5raW5nWiQ1ZTk5M2JiYy0yMjNlLTRiMDQtODBkOC01MzU3YTE1ZjE5ODlyEJO9BBUBFu3cmyMNXRg5lXGIAQGoAei0n9UGsAECEgzUJ2U3gFxcGhLcT40aDCgyFOYBVaenKXatDyIw98FZf8YWrsVv9NxkOTtE5O1HOpLrIaVFPi1FhyOV0b6JHHedAr8OTqdJdBTwBC0AKqkGa3/f0qWA4Bd/2iK47P+oPk7DchEdPf8Mhq5qApLvkq2eGjMBFrxd2Ne3NQytOGy6i8nh4fD08NkiFbzigiOnBWV5As3mVjM7eptJXreU3W8CSpTcl/A6kN+VG6HS6qniOtXGN4rG8twU6QqDVkKJd7BJzxHh/W4FZ4kCJYJpesqIKvudI/2ews2NjpY3jhkWHal5KIFLd4oNeVws3pjrYLOBj/+8ISIuaMyACruOPskqgwMt3N//ROIXF3CGO5mmG0RRk4Yy9GnYBanGC9vYTwrA+rqY9C8cO0md5wo6cLU/8LMHtfpVmQxzDcwKAYAGtvZaReBP72apPN66800eHEG3+Q6AHBCHdyfKwX8JDrS1bAZ00FnJbYvdD8pRTypvqrOq8UmczbQN8yr1l88St2XgUm4xvzcLwPrMD5TADayWtHWDwDk04pTv6eRXMse60EK49eeEqkZSg7MYO/Ry8mqU8P0ayQAZa+QyzndqUsIgBLrVkT7itp6zZ25kCJH+EqN/DYNSd0fZ2H4GEaFQd4iKW4JRKlgRbJzgRoA8UvppxrjDZ7xdQTIkoAr1G6usmvIjnmjE8tQF3eLtRfGvzzONN+kJWW1bbCZuyMdrevYFyvv1wuhOdp2cX7pBfpomGoxipo6hxqwpFfEGv+aJ+e7sEJxjYr4ucKryszBoGBOSmpwu48spo3WUhULH511hagRWevze8KY0uK+jfT8SKhy5b3TnvUV9t99Q7U3Q9p83iLfDrMz7j/u7+HZ7HLmCsIkWiCiHmRyXlHRnFMAMOAONSTOqUWGHhVD/k2o0t038Cb6Qz77PHgjOUhwMbCKt1ZODgjpuTKvvow6ZpjHtlge8Bome26mzHHcFiixElY2C34VXUT3DaH7scQQ9JITpldtDi7Vf3QGXSPUsB3UTuZrr0foxczkIsu1ZImWdbxT19kgfDV00bOsl7qF+TWnTEMARCrj7+qJUXjpZc/xm3kB9jA8tZbyQOOwU2H/H+aPpL2l1Q97Fn46iRsMhaq640v5IN92yzBBlgW45rhl9oB0Y5YF/8uOxvQb6Ja0yw7soYOuNRqBdz2AYAQ==\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":930,\"cache_read_input_tokens\":20872,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":930},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"b844335a-bc4d-418b-85b2-e5a4c0012740\",\"timestamp\":\"2026-09-14T11:28:41.076Z\",\"request_id\":\"req_011Cf3FeA4Vm8MKf8zHNGqnT\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FeAcjNqwGw2s2EPfsw\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01DssufQVo1ftXwieyWeQwzw\",\"name\":\"Bash\",\"input\":{\"command\":\"command -v -a git; ls -l /usr/bin/git 2>&1 | head -3\",\"description\":\"Look for other git binaries\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":930,\"cache_read_input_tokens\":20872,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":930},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"6bac5c79-9cd6-45eb-b84b-49a912024085\",\"timestamp\":\"2026-09-14T11:28:42.055Z\",\"request_id\":\"req_011Cf3FeA4Vm8MKf8zHNGqnT\"}\n{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_01DssufQVo1ftXwieyWeQwzw\",\"type\":\"tool_result\",\"content\":\"/bin/bash: /tmp/claude-eval-FO0ImT/home/.bashrc: Permission denied\\n/bin/bash: /tmp/claude-eval-FO0ImT/home/.bashrc: Permission denied\\n/bin/bash: line 1: command: -a: invalid option\\ncommand: usage: command [-pVv] command [arg ...]\\ncrw-rw-rw-. 1 nobody nobody 1, 3 Sep 10 10:27 /usr/bin/git\",\"is_error\":false}]},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"c44ed92c-3660-4479-9fa0-1158d7c127e8\",\"timestamp\":\"2026-09-14T11:28:42.470Z\",\"tool_use_result\":{\"stdout\":\"/bin/bash: /tmp/claude-eval-FO0ImT/home/.bashrc: Permission denied\\n/bin/bash: /tmp/claude-eval-FO0ImT/home/.bashrc: Permission denied\\n/bin/bash: line 1: command: -a: invalid option\\ncommand: usage: command [-pVv] command [arg ...]\\ncrw-rw-rw-. 1 nobody nobody 1, 3 Sep 10 10:27 /usr/bin/git\",\"stderr\":\"\",\"interrupted\":false,\"isImage\":false,\"noOutputExpected\":false}}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":50,\"estimated_tokens_delta\":50,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"d6948b4d-ebc2-44c7-aad7-c5ad81a3a853\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":98,\"estimated_tokens_delta\":48,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"4074aeee-6a77-4168-ac24-74b7bdeede9b\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3Fedj9uuBF9CEoW466b\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"CAIS/gIKpgEIERgCKkCna5kP+iRxQwaLzPQ6ljP37+ZajWbMQStUdvoZXa6U/FFAKjfF/IsU0NXljcZhv9c/aouKM7SNgqxsf6t2hMmpMg1jbGF1ZGUtb3B1cy01OAFCCHRoaW5raW5nWiQ1ZTk5M2JiYy0yMjNlLTRiMDQtODBkOC01MzU3YTE1ZjE5ODlyEJO9BBUBFu3cmyMNXRg5lXGIAQGoAeu0n9UGsAECEgxJiFtLjOlvq/1YgAQaDKnIrFbfgTT6/Rp/zyIw5WTnXRoGRKc82xL8H3fzImj1ZeqxVF3gLb3wSzR4zaJBYF1TeyBeSqRnoVCR675xKoQBjfoBjAeC5EeayesNwyvL2nTmz5r+iTuOvwdTKYfg3Qre1g02zLqnJNYEEiWNZ5NQMy0HA4PVfTM6E+JAxTdKNeJnp/Y3eyOMQq1pgeZApgqYByEBlIA0bc6D5GRxLRk8SFWC+PkgwFNG8POtMVpVAQnwvYe7WGdz1gSRNKLgy175fhddGAE=\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":563,\"cache_read_input_tokens\":21802,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":563},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"cec8cefc-39ad-4e6a-8cdc-f2e35c38b622\",\"timestamp\":\"2026-09-14T11:28:44.030Z\",\"request_id\":\"req_011Cf3FedM5MkXGs3cnLzbGD\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3Fedj9uuBF9CEoW466b\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"I reconstructed the staged change by reading the git objects directly, but I can't complete the commit — the sandbox blocks git.\\n\\n**What's staged** (working tree is clean against the index, so index == files on disk):\\n\\n- `calc.py` — adds a new `clamp(x, lo, hi)` function returning `max(lo, min(x, hi))`; `add` is unchanged from HEAD (`639b1ea`)\\n- `test_calc.py` — new file, one test: `clamp(5, 0, 3) == 3`\\n\\nOne type: a new feature plus its own test. Scope `calc` (the only module).\\n\\n**Message:**\\n\\n```\\nfeat(calc): add clamp helper\\n```\\n\\nNo body — the diff is self-explanatory, and per the skill I didn't add `Co-Authored-By`/tool attribution since there's no `CONTRIBUTING` asking for it (say the word if you want it on).\\n\\n**The blocker:** `/usr/bin/git` is masked to `/dev/null` inside this session's Bash sandbox (`crw-rw-rw- 1 nobody nobody 1, 3 /usr/bin/git`), so every git invocation exits 126 with \\\"Permission denied\\\". There's no other git on `PATH`, and `dangerouslyDisableSandbox` is disabled in this session's config, so I can't route around it. I also didn't fabricate a commit by writing git objects by hand — that would bypass the restriction and your hooks.\\n\\nTwo things worth flagging about my evidence: I verified the diff against HEAD's blob rather than the index itself (`git status --porcelain` from the session snapshot showed `M ` / `A `, i.e. nothing unstaged), and I did not run the test, so nothing in the message claims it passes.\\n\\nTo land it, run in an unsandboxed shell:\\n\\n```bash\\ngit commit -m \\\"feat(calc): add clamp helper\\\" && git log -1 --stat\\n```\\n\\nOr lift the git restriction for this session and I'll do it.\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":563,\"cache_read_input_tokens\":21802,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":563},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"uuid\":\"7ab84433-79d3-4f8c-98d2-0e7af2db4d86\",\"timestamp\":\"2026-09-14T11:28:52.021Z\",\"request_id\":\"req_011Cf3FedM5MkXGs3cnLzbGD\"}\n{\"duration_api_ms\":58565,\"stop_reason\":\"end_turn\",\"session_id\":\"48f3a533-aa86-43a1-b2c6-180f12bdd9f9\",\"total_cost_usd\":0.33139100000000005,\"usage\":{\"input_tokens\":16,\"cache_creation_input_tokens\":15671,\"cache_read_input_tokens\":140152,\"output_tokens\":4181,\"output_tokens_details\":{\"thinking_tokens\":2189},\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":15671,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"not_available\",\"iterations\":[],\"speed\":\"standard\"},\"modelUsage\":{\"claude-opus-5[1m]\":{\"inputTokens\":16,\"outputTokens\":4181,\"cacheReadInputTokens\":140152,\"cacheCreationInputTokens\":15671,\"webSearchRequests\":0,\"costUSD\":0.33139100000000005,\"contextWindow\":1000000,\"maxOutputTokens\":64000,\"thinkingTokens\":2189,\"canonicalModel\":\"claude-opus-5\",\"provider\":\"firstParty\",\"costBasis\":\"list\"}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"subagent_stats\":{\"spawned\":0,\"requested\":{\"background\":0,\"foreground\":0,\"unset\":0},\"started_in_background\":0,\"max_depth\":0,\"spawned_by_subagents\":0,\"completed\":0,\"failed\":0,\"killed\":{\"parent\":0,\"user\":0,\"system\":0},\"refused\":{\"depth_limit\":0,\"concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"is_error\":false,\"num_turns\":12,\"subtype\":\"success\",\"api_error_status\":null,\"result\":\"I reconstructed the staged change by reading the git objects directly, but I can't complete the commit — the sandbox blocks git.\\n\\n**What's staged** (working tree is clean against the index, so index == files on disk):\\n\\n- `calc.py` — adds a new `clamp(x, lo, hi)` function returning `max(lo, min(x, hi))`; `add` is unchanged from HEAD (`639b1ea`)\\n- `test_calc.py` — new file, one test: `clamp(5, 0, 3) == 3`\\n\\nOne type: a new feature plus its own test. Scope `calc` (the only module).\\n\\n**Message:**\\n\\n```\\nfeat(calc): add clamp helper\\n```\\n\\nNo body — the diff is self-explanatory, and per the skill I didn't add `Co-Authored-By`/tool attribution since there's no `CONTRIBUTING` asking for it (say the word if you want it on).\\n\\n**The blocker:** `/usr/bin/git` is masked to `/dev/null` inside this session's Bash sandbox (`crw-rw-rw- 1 nobody nobody 1, 3 /usr/bin/git`), so every git invocation exits 126 with \\\"Permission denied\\\". There's no other git on `PATH`, and `dangerouslyDisableSandbox` is disabled in this session's config, so I can't route around it. I also didn't fabricate a commit by writing git objects by hand — that would bypass the restriction and your hooks.\\n\\nTwo things worth flagging about my evidence: I verified the diff against HEAD's blob rather than the index itself (`git status --porcelain` from the session snapshot showed `M ` / `A `, i.e. nothing unstaged), and I did not run the test, so nothing in the message claims it passes.\\n\\nTo land it, run in an unsandboxed shell:\\n\\n```bash\\ngit commit -m \\\"feat(calc): add clamp helper\\\" && git log -1 --stat\\n```\\n\\nOr lift the git restriction for this session and I'll do it.\",\"ttft_ms\":1462,\"type\":\"result\",\"duration_ms\":60885,\"uuid\":\"0b689549-d6f7-40a0-802e-6eee3c0942c4\",\"ttft_stream_ms\":1124,\"time_to_request_ms\":106,\"first_content_frame_ms\":1124,\"queued_turn_count\":0,\"result_index\":0}"
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "subject-format",
+                "passed": true,
+                "weight": 2,
+                "explanation": "matched (?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\([\\w./-]+\\))?: [^\\n\"]{1,50}",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 0,
+    "overallScore": 0.5,
+    "overallPassRate": 0
+  }
+}

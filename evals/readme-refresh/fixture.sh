@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "$1"
+set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "${1:-}"
 cat > package.json <<'J'
 { "name": "svc", "scripts": { "dev": "node server.js", "test": "node --test" } }
 J

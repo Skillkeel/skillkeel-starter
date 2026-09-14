@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: readme-refresh
+context:
+  scaffold_script: fixture.sh

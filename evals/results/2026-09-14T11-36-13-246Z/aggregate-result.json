@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.270",
+  "startedAt": "2026-09-14T11:36:13.246Z",
+  "durationSeconds": 53,
+  "costUsd": 0.30359450000000004,
+  "partial": false,
+  "suite": {
+    "root": "/home/anilozsoy/Documents/ceo/products/skillkeel-starter",
+    "ablation": "none",
+    "caseFilter": "claude-md-init",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "skillkeel-starter",
+        "version": "0.1.0",
+        "path": "/home/anilozsoy/Documents/ceo/products/skillkeel-starter"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "claude-md-init",
+      "dir": "evals/claude-md-init",
+      "source": "mixed",
+      "promptMarkdown": "Use the claude-md-init skill to create CLAUDE.md for this repo. Write the file.",
+      "runsPerCase": 1,
+      "timeoutSeconds": 600,
+      "maxTurns": 15,
+      "graders": [
+        {
+          "name": "file-written",
+          "type": "file_exists",
+          "weight": 1,
+          "config": {
+            "path": "CLAUDE.md",
+            "exists": true
+          }
+        },
+        {
+          "name": "no-install-run",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Bash",
+            "input_match": "pnpm i\\b|pnpm install|npm install",
+            "min": 0,
+            "max": 0
+          }
+        },
+        {
+          "name": "not-npm-test",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CLAUDE.md"
+            },
+            "pattern": "\\bnpm test\\b",
+            "flags": "",
+            "match": "not_contains"
+          }
+        },
+        {
+          "name": "pnpm-test-ci",
+          "type": "regex",
+          "weight": 2,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CLAUDE.md"
+            },
+            "pattern": "pnpm test:ci",
+            "flags": "",
+            "match": "contains"
+          }
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?claude-md-init\"",
+            "min": 1
+          }
+        },
+        {
+          "name": "under-100-lines",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS if the file is under 100 lines, mentions Node 20 or .nvmrc, and lists pnpm-lock.yaml as something not to edit by hand. FAIL otherwise.",
+          "config": {
+            "criteria": "PASS if the file is under 100 lines, mentions Node 20 or .nvmrc, and lists pnpm-lock.yaml as something not to edit by hand. FAIL otherwise.",
+            "focus": {
+              "source": "file",
+              "path": "CLAUDE.md"
+            }
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 12,
+            "costUsd": 0.30359450000000004,
+            "judgeCostUsd": 0.0024419999999999997,
+            "durationSeconds": 52,
+            "startedAt": "2026-09-14T11:36:13.338Z",
+            "error": null,
+            "tracePath": "/tmp/claude-eval-DlKxDw/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "file-written",
+                "passed": true,
+                "weight": 1,
+                "explanation": "CLAUDE.md exists as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "no-install-run",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Bash called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "not-npm-test",
+                "passed": true,
+                "weight": 1,
+                "explanation": "pattern absent as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "pnpm-test-ci",
+                "passed": true,
+                "weight": 2,
+                "explanation": "matched pnpm test:ci",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "under-100-lines",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "# CLAUDE.md\n\n## Project\n\n`shop` — a private Vite + TypeScript package, tested with Vitest and linted with ESLint.\n\n- Node: 20 (`.nvmrc`)\n- Package manager: pnpm 9.0.0 (pinned via `packageManager` in `package.json`) — do not use npm or yarn\n\n## Commands\n\nSources: `package.json` scripts and `.github/workflows/ci.yml`. They were not executed in this\nsession (pnpm is not installed here and `node_modules` is absent), so confirm they run before\nrelying on them.\n\n| Task | Command |\n| --- | --- |\n| Install | `pnpm i --frozen-lockfile` (exactly what CI runs) |\n| Dev server | `pnpm dev` |\n| Test | `pnpm test:ci` |\n| Single test file | `pnpm test:ci src/index.test.ts` |\n| Single test by name | `pnpm test:ci -t \"<test name>\"` |\n| Watch tests | `pnpm exec vitest` |\n| Lint | `pnpm lint` |\n| Build | `pnpm build` |\n\nThere is no `test` script — `pnpm test` will fail. Use `pnpm test:ci`.\n\n## Layout\n\n```\nsrc/            Application/library source (TypeScript). Currently only src/index.ts.\n.github/workflows/ci.yml   CI: installs with a frozen lockfile, then runs pnpm test:ci.\npackage.json    Scripts and the pinned pnpm version.\npnpm-lock.yaml  Generated lockfile.\n```\n\n## Conventions\n\n- Commit messages follow Conventional Commits (`chore: init`). The history is a single commit, so\n  this is a weak signal — match whatever the surrounding history shows.\n- Tests are not yet present. Vitest's default discovery picks up `*.test.ts` / `*.spec.ts`; place\n  tests next to the source they cover under `src/` unless an existing pattern says otherwise.\n\n## Do not\n\n- Do not hand-edit `pnpm-lock.yaml` — change `package.json` and let pnpm regenerate it.\n- Do not run `pnpm install` without `--frozen-lockfile` unless you intend to update the lockfile;\n  CI installs frozen and will fail on drift.\n- Do not switch package managers or add `package-lock.json` / `yarn.lock`.\n\n## Verification\n\nBefore claiming a change is done, these must pass:\n\n```\npnpm i --frozen-lockfile\npnpm test:ci\npnpm lint\n```\n\nCI only runs `pnpm test:ci`; `pnpm lint` is not wired into CI but is expected to pass locally.\n"
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 1,
+    "overallScore": 1,
+    "overallPassRate": 1
+  }
+}
