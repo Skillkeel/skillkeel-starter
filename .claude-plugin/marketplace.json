@@ -1,7 +1,15 @@
 {
   "name": "skillkeel",
-  "owner": { "name": "Skillkeel", "email": "hi@skillkeel.com" },
+  "owner": {
+    "name": "Skillkeel",
+    "email": "hi@skillkeel.com"
+  },
   "plugins": [
-    { "name": "skillkeel-starter", "source": "./", "description": "Tested guardrail hooks and repo-hygiene skills for Claude Code." }
-  ]
+    {
+      "name": "skillkeel-starter",
+      "source": "./",
+      "description": "Guard hooks (destructive shell, secrets) and eight tested repo skills for Claude Code, each with an eval."
+    }
+  ],
+  "description": "Skillkeel plugins for Claude Code: guard hooks and tested repo skills."
 }
