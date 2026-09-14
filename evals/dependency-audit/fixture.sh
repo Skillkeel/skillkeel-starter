@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "$1"
+set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "${1:-}"
 cat > package.json <<'J'
 { "name": "dep-fixture", "version": "1.0.0", "private": true, "dependencies": { "lodash": "4.17.15" } }
 J

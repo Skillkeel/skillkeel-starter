@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.270",
+  "startedAt": "2026-09-14T11:09:35.957Z",
+  "durationSeconds": 48,
+  "costUsd": 0.2536195,
+  "partial": false,
+  "suite": {
+    "root": "~/Documents/ceo/products/skillkeel-starter",
+    "ablation": "none",
+    "caseFilter": "changelog",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "skillkeel-starter",
+        "version": "0.1.0",
+        "path": "~/Documents/ceo/products/skillkeel-starter"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "changelog",
+      "dir": "evals/changelog",
+      "source": "mixed",
+      "promptMarkdown": "Use the changelog skill to update CHANGELOG.md with everything since the last tag.",
+      "runsPerCase": 1,
+      "timeoutSeconds": 600,
+      "maxTurns": 12,
+      "graders": [
+        {
+          "name": "breaking-first",
+          "type": "regex",
+          "weight": 2,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CHANGELOG.md"
+            },
+            "pattern": "### Added\\s*\\n- \\*\\*BREAKING",
+            "flags": "",
+            "match": "contains"
+          }
+        },
+        {
+          "name": "chore-omitted",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CHANGELOG.md"
+            },
+            "pattern": "(?i)eslint",
+            "flags": "",
+            "match": "not_contains"
+          }
+        },
+        {
+          "name": "file-written",
+          "type": "file_exists",
+          "weight": 1,
+          "config": {
+            "path": "CHANGELOG.md",
+            "exists": true
+          }
+        },
+        {
+          "name": "issue-ref-kept",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CHANGELOG.md"
+            },
+            "pattern": "#12",
+            "flags": "",
+            "match": "contains"
+          }
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?changelog\"",
+            "min": 1
+          }
+        },
+        {
+          "name": "unreleased",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "CHANGELOG.md"
+            },
+            "pattern": "## \\[Unreleased\\]",
+            "flags": "",
+            "match": "contains"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.14285714285714285,
+            "passed": false,
+            "turns": 11,
+            "costUsd": 0.2536195,
+            "judgeCostUsd": 0,
+            "durationSeconds": 47,
+            "startedAt": "2026-09-14T11:09:36.035Z",
+            "error": null,
+            "tracePath": "/tmp/claude-eval-vMXcoW/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "breaking-first",
+                "passed": false,
+                "weight": 2,
+                "explanation": "grader threw: case \"changelog\" grader focus file \"CHANGELOG.md\": path \"CHANGELOG.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "chore-omitted",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"changelog\" grader focus file \"CHANGELOG.md\": path \"CHANGELOG.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "file-written",
+                "passed": false,
+                "weight": 1,
+                "explanation": "CHANGELOG.md missing (expected present)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "issue-ref-kept",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"changelog\" grader focus file \"CHANGELOG.md\": path \"CHANGELOG.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "unreleased",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"changelog\" grader focus file \"CHANGELOG.md\": path \"CHANGELOG.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "advisories": [
+        "grader \"file-written\" cannot pass with the granted tools: it checks a file the run creates, but no tool the run may use can create one (a plugin hook still could; a skill's own allowed-tools does not count inside a run) — add Write (or Edit / Bash) to the case's allowed_tools and grant it with --allow-tools"
+      ],
+      "aggregates": {
+        "score": 0.14285714285714285,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 0,
+    "overallScore": 0.14285714285714285,
+    "overallPassRate": 0
+  }
+}

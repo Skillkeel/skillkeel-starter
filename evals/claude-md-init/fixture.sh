@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "$1"
+set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "${1:-}"
 cat > package.json <<'J'
 { "name": "shop", "private": true, "packageManager": "pnpm@9.0.0", "scripts": { "dev": "vite", "build": "vite build", "test:ci": "vitest run", "lint": "eslint ." } }
 J

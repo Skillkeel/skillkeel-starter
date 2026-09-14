@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.270",
+  "startedAt": "2026-09-14T11:31:07.871Z",
+  "durationSeconds": 69,
+  "costUsd": 0.368534,
+  "partial": false,
+  "suite": {
+    "root": "~/Documents/ceo/products/skillkeel-starter",
+    "ablation": "none",
+    "caseFilter": "commit-message",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "skillkeel-starter",
+        "version": "0.1.0",
+        "path": "~/Documents/ceo/products/skillkeel-starter"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "commit-message",
+      "dir": "evals/commit-message",
+      "source": "mixed",
+      "promptMarkdown": "Use the commit-message skill to commit the staged changes in this repo.",
+      "runsPerCase": 1,
+      "timeoutSeconds": 600,
+      "maxTurns": 12,
+      "graders": [
+        {
+          "name": "committed",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Bash",
+            "input_match": "git commit",
+            "min": 1
+          }
+        },
+        {
+          "name": "no-trailer",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": "trace",
+            "pattern": "Co-Authored-By|Generated with",
+            "flags": "",
+            "match": "not_contains"
+          }
+        },
+        {
+          "name": "quality",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "PASS if the final commit message describes only the staged files (calc.py and test_calc.py), uses an imperative subject, and the skill showed proof via git log after committing. FAIL if it describes unrelated changes, claims tests passed without running them, or never committed.",
+          "config": {
+            "criteria": "PASS if the final commit message describes only the staged files (calc.py and test_calc.py), uses an imperative subject, and the skill showed proof via git log after committing. FAIL if it describes unrelated changes, claims tests passed without running them, or never committed.",
+            "focus": "trace"
+          }
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?commit-message\"",
+            "min": 1
+          }
+        },
+        {
+          "name": "subject-format",
+          "type": "regex",
+          "weight": 2,
+          "config": {
+            "target": "trace",
+            "pattern": "(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\([\\w./-]+\\))?: [^\\n\"]{1,50}",
+            "flags": "",
+            "match": "contains"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 10,
+            "costUsd": 0.368534,
+            "judgeCostUsd": 0.029287,
+            "durationSeconds": 69,
+            "startedAt": "2026-09-14T11:31:07.965Z",
+            "error": null,
+            "tracePath": "/tmp/claude-eval-zRdeGR/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "committed",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Bash called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "no-trailer",
+                "passed": false,
+                "weight": 1,
+                "explanation": "pattern found (expected absent)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "quality",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"81efd6dd-eecc-4182-915d-8c975772506b\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"uuid\":\"c732c9be-ae65-44f8-adbc-474a4cae1901\",\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\"}\n{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"81efd6dd-eecc-4182-915d-8c975772506b\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"output\":\"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"SessionStart\\\",\\\"additionalContext\\\":\\\"git: branch=main, uncommitted=2, last=\\\\\\\"84d031e feat: add calc\\\\\\\". Skillkeel Starter active: guard-bash (blocks destructive shell), secret-scan (blocks credentials in writes). Skills: commit-message, pr-description, claude-md-init, changelog, readme-refresh, dependency-audit, secret-audit, test-gap-finder. Use the Skill tool by name.\\\"}}\\n\",\"stdout\":\"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"SessionStart\\\",\\\"additionalContext\\\":\\\"git: branch=main, uncommitted=2, last=\\\\\\\"84d031e feat: add calc\\\\\\\". Skillkeel Starter active: guard-bash (blocks destructive shell), secret-scan (blocks credentials in writes). Skills: commit-message, pr-description, claude-md-init, changelog, readme-refresh, dependency-audit, secret-audit, test-gap-finder. Use the Skill tool by name.\\\"}}\\n\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"f8af8733-9b0c-4f1a-9b40-0651e58637bc\",\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\"}\n{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/tmp/claude-eval-zRdeGR/home/cwd\",\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"tools\":[\"Task\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Skill\",\"TaskOutput\",\"TaskStop\",\"ToolSearch\",\"Write\"],\"mcp_servers\":[],\"model\":\"claude-opus-5[1m]\",\"permissionMode\":\"dontAsk\",\"slash_commands\":[\"deep-research\",\"skillkeel-starter:changelog\",\"skillkeel-starter:claude-md-init\",\"skillkeel-starter:commit-message\",\"skillkeel-starter:dependency-audit\",\"skillkeel-starter:pr-description\",\"skillkeel-starter:readme-refresh\",\"skillkeel-starter:secret-audit\",\"skillkeel-starter:test-gap-finder\",\"dataviz\",\"update-config\",\"verify\",\"debug\",\"code-review\",\"simplify\",\"batch\",\"fewer-permission-prompts\",\"doctor\",\"loop\",\"schedule\",\"claude-api\",\"workflow-authoring\",\"run\",\"run-skill-generator\",\"agents\",\"auto-mode-setup\",\"autocompact\",\"clear\",\"color\",\"compact\",\"config\",\"output-style\",\"context\",\"effort\",\"fast\",\"heapdump\",\"init\",\"mcp\",\"model\",\"__remote-workflow\",\"workflow-launch-exec\",\"reload-plugins\",\"reload-skills\",\"rename\",\"security-review\",\"usage\",\"insights\",\"recap\",\"goal\",\"list-agents\",\"team-onboarding\"],\"terminal_slash_commands\":[\"doctor\",\"color\",\"reload-plugins\"],\"apiKeySource\":\"none\",\"claude_code_version\":\"2.1.270\",\"output_style\":\"default\",\"agents\":[\"claude\",\"Explore\",\"general-purpose\",\"Plan\",\"statusline-setup\"],\"skills\":[\"deep-research\",\"skillkeel-starter:changelog\",\"skillkeel-starter:claude-md-init\",\"skillkeel-starter:commit-message\",\"skillkeel-starter:dependency-audit\",\"skillkeel-starter:pr-description\",\"skillkeel-starter:readme-refresh\",\"skillkeel-starter:secret-audit\",\"skillkeel-starter:test-gap-finder\",\"dataviz\",\"update-config\",\"verify\",\"debug\",\"code-review\",\"simplify\",\"batch\",\"fewer-permission-prompts\",\"doctor\",\"loop\",\"schedule\",\"claude-api\",\"workflow-authoring\",\"run\",\"run-skill-generator\"],\"plugins\":[{\"name\":\"skillkeel-starter\",\"path\":\"~/Documents/ceo/products/skillkeel-starter\",\"source\":\"skillkeel-starter@inline\",\"version\":\"0.1.0\"}],\"capabilities\":[\"interrupt_receipt_v1\",\"interrupt_cancel_queued_v1\",\"msg_lifecycle_v1\"],\"analytics_disabled\":true,\"product_feedback_disabled\":true,\"uuid\":\"7138b699-e389-4988-b8f3-5bd8c24c6c9e\",\"memory_paths\":{\"auto\":\"/tmp/claude-eval-zRdeGR/config/projects/-tmp-claude-eval-zRdeGR-home-cwd/memory/\"},\"messaging_socket_path\":\"/tmp/claude-eval-zRdeGR/tmp/cc-socks/635953.sock\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FqTZmkPHGtLoogCt5t\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"I'll use the commit-message skill.\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":9981,\"cache_read_input_tokens\":6694,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":9981},\"output_tokens\":1,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"ec62c298-ee09-42c1-9e9d-e4e89ed81747\",\"timestamp\":\"2026-09-14T11:31:10.452Z\",\"request_id\":\"req_011Cf3FqT2X2NgBLiosvggn9\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FqTZmkPHGtLoogCt5t\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_015QXFM7qmEV84Gnrnn1uMHx\",\"name\":\"Skill\",\"input\":{\"skill\":\"skillkeel-starter:commit-message\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":9981,\"cache_read_input_tokens\":6694,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":9981},\"output_tokens\":1,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"3596aba2-7c78-4d7f-b582-b57d5902f580\",\"timestamp\":\"2026-09-14T11:31:10.963Z\",\"request_id\":\"req_011Cf3FqT2X2NgBLiosvggn9\"}\n{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_015QXFM7qmEV84Gnrnn1uMHx\",\"content\":\"Launching skill: skillkeel-starter:commit-message\"}]},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"3427196c-f1ec-4c62-844f-767a8451a733\",\"timestamp\":\"2026-09-14T11:31:10.989Z\",\"tool_use_result\":{\"success\":true,\"commandName\":\"skillkeel-starter:commit-message\"}}\n{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Base directory for this skill: ~/Documents/ceo/products/skillkeel-starter/skills/commit-message\\n\\n# commit-message\\n\\nWrite commit messages from evidence (the diff), not from recollection.\\n\\n## Procedure\\n1. Run `git status --porcelain` and `git diff --cached --stat`. If nothing is staged, ask whether to stage all tracked changes (`git add -u`) or specific paths. Never `git add -A` silently (untracked junk, secrets).\\n2. Read the staged diff: `git diff --cached`. If it exceeds ~400 lines, read `--stat` plus the hunks of the 5 largest files.\\n3. Classify the change: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`. Pick ONE. If the diff mixes types, say so and offer to split into two commits.\\n4. Scope = the top-level directory or module most touched (`auth`, `api`, `cli`). Omit when the change is cross-cutting.\\n5. Subject: imperative, ≤ 50 chars, no trailing period. `fix(auth): reject expired refresh tokens`.\\n6. Body only when the *why* is not obvious from the diff: 1–3 lines, wrap at 72. Reference issues as `Refs #123` / `Closes #123` on their own line.\\n7. Show the message, then commit with a heredoc so newlines survive:\\n   ```bash\\n   git commit -m \\\"$(cat <<'MSG'\\n   fix(auth): reject expired refresh tokens\\n\\n   Tokens past `exp` were accepted because the check used `<` instead of `<=`.\\n   Closes #412\\n   MSG\\n   )\\\"\\n   ```\\n8. Print `git log -1 --stat` as proof.\\n\\n## Rules\\n- Never describe changes that are not in the staged diff.\\n- Never include secrets, tokens, or internal URLs in the message.\\n- Do not add \\\"Co-Authored-By\\\" or tool attribution unless the repo's CONTRIBUTING or the user asks for it.\\n- If tests were not run, do not claim they pass in the message.\\n\\n## Eval\\n`evals/commit-message/` — fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.\\n\"}]},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"14eb6248-7d48-472b-83ed-bd51d33b5dc4\",\"timestamp\":\"2026-09-14T11:31:10.986Z\",\"isSynthetic\":true}\n{\"type\":\"rate_limit_event\",\"rate_limit_info\":{\"status\":\"allowed\",\"resetsAt\":1789402200,\"rateLimitType\":\"five_hour\",\"overageStatus\":\"rejected\",\"overageDisabledReason\":\"org_level_disabled\",\"isUsingOverage\":false,\"unifiedWindows\":{\"five_hour\":{\"utilization\":0.13,\"resetsAt\":1789402200},\"seven_day\":{\"utilization\":0.43,\"resetsAt\":1789441200}}},\"uuid\":\"822e0f02-fad9-48fc-bf38-4047523ed937\",\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":50,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"e9016b84-82bf-44c6-a2ca-a3f737040eb9\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":150,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"8bb5d786-f5a9-4ff7-a5ae-33114e32ba24\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":200,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"0c490421-d609-408b-bbcf-8bc13468b5ab\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":303,\"estimated_tokens_delta\":103,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"dbba5aa0-75e2-47fb-abb5-ae7ddf1b8281\"}\n[…37 messages elided…]\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":100,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"3e1eee1f-eddd-4371-a1ea-8c329ad70983\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":200,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"1d38e4a4-6d29-4e74-82ae-85acc79fdbd5\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":250,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"6a04060d-0325-4ce5-955f-86ab70b8a6db\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":350,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"a06f9abc-4f24-4a72-a082-91d7209644d7\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":400,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"e0578caa-dd0c-48e8-ae9c-6738a9721f8f\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":500,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"0da4a16c-8d29-465e-8930-9f55686df1a9\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":550,\"estimated_tokens_delta\":50,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"97157ff6-2bd4-45b6-97a6-f4301766d90b\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":650,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"71de1658-3e1c-4a85-bc78-64e59df934b7\"}\n{\"type\":\"system\",\"subtype\":\"thinking_tokens\",\"estimated_tokens\":750,\"estimated_tokens_delta\":100,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"07e009a6-09e8-4f22-9ee9-78233ac85e04\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FtcnEHnAMyZLNvCNpc\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"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\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":863,\"cache_read_input_tokens\":21746,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":863},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"80ca71b7-850d-4909-a12f-00703bd14389\",\"timestamp\":\"2026-09-14T11:32:04.770Z\",\"request_id\":\"req_011Cf3Ftc45RMmbRyEcMuhfk\"}\n{\"type\":\"assistant\",\"message\":{\"model\":\"claude-opus-5\",\"id\":\"msg_011Cf3FtcnEHnAMyZLNvCNpc\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"`git` is not executable in this sandbox — `/usr/bin/git` has been masked to a device node (`crw-rw-rw- 1, 3`, i.e. `/dev/null`) and there's no `git` anywhere on `PATH`. So I could not run `git diff --cached` or `git commit`.\\n\\nRather than write the message from memory, I reconstructed the real staged diff by reading `.git` directly with Python (HEAD commit → tree → blob, plus parsing `.git/index`). Verified staged contents:\\n\\n**calc.py** (modified) — adds one function to the existing `add`:\\n```python\\ndef clamp(x, lo, hi):\\n    return max(lo, min(x, hi))\\n```\\n**test_calc.py** (new) — one test: `clamp(5, 0, 3) == 3`\\n\\nThat's a single logical change: a new helper plus its test. Message:\\n\\n```\\nfeat(calc): add clamp helper\\n```\\n\\nNo body — the diff is self-explanatory and I have no evidence of a *why* beyond it. No `Co-Authored-By`: this repo's commit-message skill says not to add tool attribution unless CONTRIBUTING or you ask, and there's no CONTRIBUTING here. Say the word and I'll add the line back. I also did not run the test (can't claim it passes).\\n\\n**The commit is not made.** Two ways forward:\\n\\n1. Restore `git` in the sandbox and I'll run the commit and show `git log -1 --stat` as proof.\\n2. I hand-write the commit object with Python (build the commit object, zlib-compress into `.git/objects`, update `refs/heads/main`). This reproduces what `git commit` does, but it bypasses git's own validation and any hooks, and it writes into your repo's object store directly — I'd want your explicit go-ahead before touching `.git` that way.\\n\\nWhich do you prefer?\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":863,\"cache_read_input_tokens\":21746,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":863},\"output_tokens\":2,\"service_tier\":\"standard\",\"inference_geo\":\"not_available\"},\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"uuid\":\"696511a5-a725-418f-b697-ab21ccda405e\",\"timestamp\":\"2026-09-14T11:32:12.102Z\",\"request_id\":\"req_011Cf3Ftc45RMmbRyEcMuhfk\"}\n{\"duration_api_ms\":60527,\"stop_reason\":\"end_turn\",\"session_id\":\"1b50d862-17bb-4e6e-9225-83f489ad643d\",\"total_cost_usd\":0.33924699999999997,\"usage\":{\"input_tokens\":16,\"cache_creation_input_tokens\":15915,\"cache_read_input_tokens\":140384,\"output_tokens\":4393,\"output_tokens_details\":{\"thinking_tokens\":2122},\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":15915,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"not_available\",\"iterations\":[],\"speed\":\"standard\"},\"modelUsage\":{\"claude-opus-5[1m]\":{\"inputTokens\":16,\"outputTokens\":4393,\"cacheReadInputTokens\":140384,\"cacheCreationInputTokens\":15915,\"webSearchRequests\":0,\"costUSD\":0.33924699999999997,\"contextWindow\":1000000,\"maxOutputTokens\":64000,\"thinkingTokens\":2122,\"canonicalModel\":\"claude-opus-5\",\"provider\":\"firstParty\",\"costBasis\":\"list\"}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"subagent_stats\":{\"spawned\":0,\"requested\":{\"background\":0,\"foreground\":0,\"unset\":0},\"started_in_background\":0,\"max_depth\":0,\"spawned_by_subagents\":0,\"completed\":0,\"failed\":0,\"killed\":{\"parent\":0,\"user\":0,\"system\":0},\"refused\":{\"depth_limit\":0,\"concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"is_error\":false,\"num_turns\":10,\"subtype\":\"success\",\"api_error_status\":null,\"result\":\"`git` is not executable in this sandbox — `/usr/bin/git` has been masked to a device node (`crw-rw-rw- 1, 3`, i.e. `/dev/null`) and there's no `git` anywhere on `PATH`. So I could not run `git diff --cached` or `git commit`.\\n\\nRather than write the message from memory, I reconstructed the real staged diff by reading `.git` directly with Python (HEAD commit → tree → blob, plus parsing `.git/index`). Verified staged contents:\\n\\n**calc.py** (modified) — adds one function to the existing `add`:\\n```python\\ndef clamp(x, lo, hi):\\n    return max(lo, min(x, hi))\\n```\\n**test_calc.py** (new) — one test: `clamp(5, 0, 3) == 3`\\n\\nThat's a single logical change: a new helper plus its test. Message:\\n\\n```\\nfeat(calc): add clamp helper\\n```\\n\\nNo body — the diff is self-explanatory and I have no evidence of a *why* beyond it. No `Co-Authored-By`: this repo's commit-message skill says not to add tool attribution unless CONTRIBUTING or you ask, and there's no CONTRIBUTING here. Say the word and I'll add the line back. I also did not run the test (can't claim it passes).\\n\\n**The commit is not made.** Two ways forward:\\n\\n1. Restore `git` in the sandbox and I'll run the commit and show `git log -1 --stat` as proof.\\n2. I hand-write the commit object with Python (build the commit object, zlib-compress into `.git/objects`, update `refs/heads/main`). This reproduces what `git commit` does, but it bypasses git's own validation and any hooks, and it writes into your repo's object store directly — I'd want your explicit go-ahead before touching `.git` that way.\\n\\nWhich do you prefer?\",\"ttft_ms\":1351,\"type\":\"result\",\"duration_ms\":63066,\"uuid\":\"81e491b3-4958-4953-825f-2261eee9a066\",\"ttft_stream_ms\":976,\"time_to_request_ms\":111,\"first_content_frame_ms\":977,\"queued_turn_count\":0,\"result_index\":0}"
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "subject-format",
+                "passed": true,
+                "weight": 2,
+                "explanation": "matched (?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\([\\w./-]+\\))?: [^\\n\"]{1,50}",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 0,
+    "overallScore": 0.5,
+    "overallPassRate": 0
+  }
+}

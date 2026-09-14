@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "$1"
+set -e; . "$(dirname "$0")/../_lib.sh"; newrepo "${1:-}"
 mkdir -p pkg tests
 printf 'def slugify(s):\n    return s.lower().replace(" ", "-")\n' > pkg/utils.py
 printf 'import hashlib\n\ndef hash_password(p, salt):\n    return hashlib.sha256((salt + p).encode()).hexdigest()\n\ndef verify(p, salt, h):\n    return hash_password(p, salt) == h\n' > pkg/auth.py
