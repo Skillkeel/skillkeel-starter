@@ -55,4 +55,4 @@ bash tests/test-hooks.sh
 
 ## Paid version
 
-Skillkeel Kit adds a setup playbook, 24 more skills in six packs, eight hooks, five subagents, guardrail checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com
+Skillkeel Kit (€49) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
