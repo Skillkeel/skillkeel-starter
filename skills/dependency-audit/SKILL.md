@@ -25,4 +25,4 @@ description: Use when the user asks to check dependencies for vulnerabilities, o
 - If no audit tool is available and installing is not allowed, say so and stop at the outdated-list.
 
 ## Eval
-`evals/dependency-audit/` — fixture `package.json` with a pinned old `lodash` and a package-lock; expected: audit run, lodash listed with severity, patch bump proposed as Tier 1, no `--force`.
+`evals/dependency-audit/`: fixture `package.json` with a pinned old `lodash` and a package-lock; expected: audit run, lodash listed with severity, patch bump proposed as Tier 1, no `--force`.

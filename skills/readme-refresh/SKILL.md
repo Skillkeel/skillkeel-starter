@@ -23,4 +23,4 @@ description: Use when the user asks to update, fix, or audit README.md, or when 
 - No new badges, emojis, or headings beyond what is needed to fix a finding.
 
 ## Eval
-`evals/readme-refresh/` — fixture README claims `npm run start` and links `docs/api.md`; repo has `npm run dev` and no `docs/`; expected: both flagged and fixed, other prose untouched.
+`evals/readme-refresh/`: fixture README claims `npm run start` and links `docs/api.md`; repo has `npm run dev` and no `docs/`; expected: both flagged and fixed, other prose untouched.

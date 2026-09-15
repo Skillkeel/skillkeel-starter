@@ -19,4 +19,4 @@ description: Use when the user asks what to test next, where coverage is weak, o
 - Proposed cases must be derivable from the code read in this session.
 
 ## Eval
-`evals/test-gap-finder/` — fixture Python package with `auth.py` (untested, high churn), `utils.py` (tested), `payments.py` (untested); expected: auth.py and payments.py ranked top, utils.py not proposed, ≥2 concrete cases per proposal, no test files written.
+`evals/test-gap-finder/`: fixture Python package with `auth.py` (untested, high churn), `utils.py` (tested), `payments.py` (untested); expected: auth.py and payments.py ranked top, utils.py not proposed, ≥2 concrete cases per proposal, no test files written.

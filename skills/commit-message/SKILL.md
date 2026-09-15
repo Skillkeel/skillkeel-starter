@@ -33,4 +33,4 @@ Write commit messages from evidence (the diff), not from recollection.
 - If tests were not run, do not claim they pass in the message.
 
 ## Eval
-`evals/commit-message/` — fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.
+`evals/commit-message/`: fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.
