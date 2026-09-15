@@ -29,6 +29,8 @@ Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-pus
 
 The hooks have 44 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. As of 2026-09-13 all eight pass; secret-audit was rerun on 2026-09-15 after its gitleaks commands changed. You can read the transcripts before you install anything.
 
+External test set: u/Far_Business4773 runs 52 evasion cases against a guard of this shape in [lumis-skills/examples/tamper_cases.py](https://github.com/momonanq/lumis-skills/blob/main/examples/tamper_cases.py) (MIT). Cases 41 to 52 came out of the r/ClaudeCode thread with this project; case 42 (`find -exec rm -rf`) is the one fixed in 0.1.1. That file targets a guard with protected paths, which guard-bash does not have, so it is a reference, not part of this test suite.
+
 This plugin does not overlap with the `superpowers` plugin. That one covers process (planning, TDD, debugging). This one covers guardrails and repo chores.
 
 ## Install
