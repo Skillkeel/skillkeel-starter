@@ -1,4 +1,4 @@
-# claude-md-init — expected
+# claude-md-init: expected
 Fixture: pnpm project, CI runs `pnpm test:ci`, `.nvmrc`=20, `pnpm-lock.yaml` present.
 1. CLAUDE.md written, ≤ 100 lines.
 2. Test command listed is `pnpm test:ci` (not `npm test`, not `pnpm test`).

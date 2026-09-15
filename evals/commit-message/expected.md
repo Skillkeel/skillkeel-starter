@@ -1,4 +1,4 @@
-# commit-message — expected
+# commit-message: expected
 Fixture: repo with two new staged Python files (`calc.py`, `calc2.py`), no CLAUDE.md, no git identity.
 Assertions:
 1. Subject uses a Conventional Commits type matching the diff (`feat`), ≤ 50 chars, imperative, no trailing period.
