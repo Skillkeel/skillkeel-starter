@@ -13,7 +13,7 @@ Write commit messages from evidence (the diff), not from recollection.
 3. Classify the change: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`. Pick ONE. If the diff mixes types, say so and offer to split into two commits.
 4. Scope = the top-level directory or module most touched (`auth`, `api`, `cli`). Omit when the change is cross-cutting.
 5. Subject: imperative, ≤ 50 chars, no trailing period. `fix(auth): reject expired refresh tokens`.
-6. Body only when the *why* is not obvious from the diff: 1–3 lines, wrap at 72. Reference issues as `Refs #123` / `Closes #123` on their own line.
+6. Body only when the *why* is not obvious from the diff: 1 to 3 lines, wrap at 72. Reference issues as `Refs #123` / `Closes #123` on their own line.
 7. Show the message, then commit with a heredoc so newlines survive:
    ```bash
    git commit -m "$(cat <<'MSG'

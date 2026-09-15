@@ -1,4 +1,4 @@
-# readme-refresh — expected
+# readme-refresh: expected
 Fixture: README says `npm run start` (script is `dev`) and links `docs/api.md` (missing).
 1. Findings table lists both issues.
 2. `npm run start` → `npm run dev` fixed in README.

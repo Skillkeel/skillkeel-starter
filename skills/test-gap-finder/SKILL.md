@@ -10,7 +10,7 @@ description: Use when the user asks what to test next, where coverage is weak, o
 2. Build the map: list source files (exclude generated, vendored, migrations). For each, find tests that import or name it (grep the module path/name inside test files). Result: `module | test files | test count (rough: count of test functions)`.
 3. If a coverage report is cheap, run it: `pytest --cov --cov-report=term-missing -q`, `npx vitest run --coverage`, `go test -cover ./...`. Skip if it takes > 2 min or needs services.
 4. Rank untested/under-tested modules by: recent churn (`git log --since=90.days --format='' --name-only | sort | uniq -c`), size (`wc -l`), and whether they sit on a critical path (auth, payments, data writes, public API).
-5. For the top 5, propose tests: file path, test names, and 2–4 concrete cases each (happy path, boundary, failure). Reference the module's real function signatures (read the code).
+5. For the top 5, propose tests: file path, test names, and 2 to 4 concrete cases each (happy path, boundary, failure). Reference the module's real function signatures (read the code).
 6. Output a table plus the proposals. Ask before writing any test files; if approved, write them following the repo's existing test style and run them.
 
 ## Rules

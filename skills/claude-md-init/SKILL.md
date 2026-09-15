@@ -5,7 +5,7 @@ description: Use when a repo has no CLAUDE.md, or the user asks to create/refres
 
 # claude-md-init
 
-A good CLAUDE.md is short, true, and command-centric. Aim for 40–80 lines.
+A good CLAUDE.md is short, true, and command-centric. Aim for 40 to 80 lines.
 
 ## Procedure
 1. Inventory (read, do not guess): `ls`, `cat package.json | jq .scripts`, `Makefile` targets, `pyproject.toml` / `setup.cfg`, `Cargo.toml`, `go.mod`, `docker-compose*.yml`, `.github/workflows/*.yml` (what CI actually runs), `README.md` headings, `.editorconfig`, lint configs.
@@ -14,7 +14,7 @@ A good CLAUDE.md is short, true, and command-centric. Aim for 40–80 lines.
 4. Write `CLAUDE.md` with these sections, omitting empty ones:
    - **Project**: one sentence, stack, runtime versions (from `.nvmrc`, `.python-version`, `Dockerfile`).
    - **Commands**: install, dev, test (single test example), lint/format, build, migrate. One line each, copy-pasteable.
-   - **Layout**: 5–10 lines mapping top-level dirs to responsibilities.
+   - **Layout**: 5 to 10 lines mapping top-level dirs to responsibilities.
    - **Conventions**: commit style, branch naming, formatting tool, test placement, error-handling idiom if visible.
    - **Do not**: files never to edit by hand (generated, lockfiles, migrations history), commands never to run without asking (deploy, db reset).
    - **Verification**: the exact command(s) that must pass before claiming done.

@@ -1,4 +1,4 @@
-# dependency-audit — expected
+# dependency-audit: expected
 Fixture: `lodash` pinned at 4.17.15 (known advisories), no lockfile.
 1. Runs `npm audit` (after `npm install` to produce a lockfile) or reports why it cannot.
 2. lodash listed with severity and fixed-in version.
