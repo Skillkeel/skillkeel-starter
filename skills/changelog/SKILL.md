@@ -20,4 +20,4 @@ description: Use when the user asks to update or generate CHANGELOG.md, prepare 
 - Do not bump `package.json`/`pyproject.toml` versions unless asked.
 
 ## Eval
-`evals/changelog/` — fixture with tag v0.1.0 and 5 commits after it (2 feat, 1 fix, 1 chore, 1 feat!: breaking); expected: chore omitted, breaking first with prefix, entries under [Unreleased].
+`evals/changelog/`: fixture with tag v0.1.0 and 5 commits after it (2 feat, 1 fix, 1 chore, 1 feat!: breaking); expected: chore omitted, breaking first with prefix, entries under [Unreleased].

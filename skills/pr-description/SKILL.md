@@ -22,7 +22,7 @@ One paragraph: the problem and the approach. Link the issue.
 - Bullet per logical change, referencing files/modules (not every file).
 
 ## Test plan
-- [ ] `<exact command>` — what it proves
+- [ ] `<exact command>`: what it proves
 - [ ] Manual step, if any
 
 ## Risk / rollback
@@ -37,4 +37,4 @@ What could break, how to revert (`git revert <sha>` or feature flag).
 - No tool attribution footer ("Generated with …") unless the repo's CONTRIBUTING or the user asks for it.
 
 ## Eval
-`evals/pr-description/` — fixture branch with 3 commits (feat + fix + docs) and a migration file; expected: migration called out under Risk, test plan uses the repo's real `make test`.
+`evals/pr-description/`: fixture branch with 3 commits (feat + fix + docs) and a migration file; expected: migration called out under Risk, test plan uses the repo's real `make test`.

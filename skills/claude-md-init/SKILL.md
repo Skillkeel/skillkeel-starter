@@ -27,4 +27,4 @@ A good CLAUDE.md is short, true, and command-centric. Aim for 40–80 lines.
 - Keep under 100 lines; longer instructions go in `docs/` and are linked.
 
 ## Eval
-`evals/claude-md-init/` — fixture: Node monorepo with `pnpm` scripts + GitHub Actions running `pnpm test:ci`; expected: CLAUDE.md lists `pnpm test:ci` (not `npm test`), notes lockfile as do-not-edit, ≤ 100 lines.
+`evals/claude-md-init/`: fixture: Node monorepo with `pnpm` scripts + GitHub Actions running `pnpm test:ci`; expected: CLAUDE.md lists `pnpm test:ci` (not `npm test`), notes lockfile as do-not-edit, ≤ 100 lines.
