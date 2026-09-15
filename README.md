@@ -6,6 +6,9 @@ Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-pus
 
 ## Hooks
 
+![guard-bash refusing rm -rf /, git push --force and find -exec rm -rf, allowing git status](docs/guard-bash.png)
+
+
 | Hook | What it does |
 |---|---|
 | `guard-bash` | Blocks destructive shell commands before they run: `rm -rf /`, `git push --force` without `--force-with-lease`, `git reset --hard`, `git clean -f`, `DROP DATABASE`, `terraform destroy`, `curl \| bash`, `dd` and `mkfs`. Claude sees the reason and asks you instead. |
