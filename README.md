@@ -2,6 +2,8 @@
 
 Guard hooks and repo skills for [Claude Code](https://claude.com/claude-code). Free, MIT.
 
+[![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/skillkeel-skillkeel-starter)](https://www.claudepluginhub.com/plugins/skillkeel-skillkeel-starter?ref=badge)
+
 Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-push over a teammate's branch, or write an API key straight into `config.py` if nothing stops it. This plugin stops it, and adds eight small skills for the boring parts of repo work.
 
 ## Hooks
