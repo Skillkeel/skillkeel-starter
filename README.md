@@ -8,7 +8,9 @@ Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-pus
 
 ## Hooks
 
-![guard-bash refusing rm -rf /, git push --force and find -exec rm -rf, allowing git status](docs/guard-bash.png)
+![guard-bash refusing rm -rf /, git push --force and find -exec rm -rf; secret-scan refusing an AWS key; git status allowed](docs/guard-bash.gif)
+
+Every call in the recording is the real hook fed the JSON Claude Code sends. Still image: [docs/guard-bash.png](docs/guard-bash.png).
 
 
 | Hook | What it does |
