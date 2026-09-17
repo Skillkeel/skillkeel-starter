@@ -36,6 +36,8 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 
 The hooks have 44 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. As of 2026-09-13 all eight pass; secret-audit was rerun on 2026-09-15 after its gitleaks commands changed. You can read the transcripts before you install anything.
 
+Since 0.1.3 the eval runner also writes a run record per case (`evals/<skill>/record-<date>.json`: exit code, every tool call, skill invocations, grader verdicts that need no model) and `evals/cluster.py` groups failed cases by their first mechanical mismatch, so a runner or grader fault shows up as one bucket instead of eight transcript reads. The skill texts call four external CLIs (gitleaks, trufflehog, pip-audit, gh); `tests/test-cli-verbs.py` checks every subcommand and flag they name against `tests/cli-verbs.json`, a snapshot read from the latest release of each CLI, so a renamed subcommand fails the test before it fails for you.
+
 External test set: u/Far_Business4773 runs 52 evasion cases against a guard of this shape in [lumis-skills/examples/tamper_cases.py](https://github.com/momonanq/lumis-skills/blob/main/examples/tamper_cases.py) (MIT). Cases 41 to 52 came out of the r/ClaudeCode thread with this project; case 42 (`find -exec rm -rf`) is the one fixed in 0.1.1. That file targets a guard with protected paths, which guard-bash does not have, so it is a reference, not part of this test suite.
 
 This plugin does not overlap with the `superpowers` plugin. That one covers process (planning, TDD, debugging). This one covers guardrails and repo chores.
@@ -59,7 +61,9 @@ SKILLKEEL_ALLOW_SECRETS=1 claude     # secret-scan off
 ## Run the tests
 
 ```
-bash tests/test-hooks.sh
+bash tests/test-hooks.sh            # 44 hook cases
+python3 tests/test-cli-verbs.py     # skill texts vs the CLI snapshot
+python3 tests/test-evals-record.py  # eval record and cluster tools
 ```
 
 ## Paid version

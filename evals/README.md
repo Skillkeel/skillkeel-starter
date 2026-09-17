@@ -2,8 +2,11 @@
 
 Every skill ships with an eval: a fixture, an expected outcome, and a transcript from a real Claude Code run.
 
-- `<skill>/fixture/`: minimal repo state the skill is run against (created by `fixture.sh`).
-- `<skill>/expected.md`: observable assertions (what the output must contain / must not contain).
-- `<skill>/transcript-<date>.md`: the actual session transcript, unedited, with a PASS/FAIL verdict per assertion.
+- `<skill>/fixture.sh`: builds the minimal repo state the skill is run against.
+- `<skill>/case.yaml` and `<skill>/graders/`: the native `claude plugin eval` case and its graders (tool_used, regex, file_exists, llm_judge).
+- `<skill>/expected.md`: the same assertions in prose.
+- `<skill>/transcript-<date>.md`: the session transcript, unedited, with a PASS/FAIL verdict per assertion; `transcript-<date>.raw.md` is the assistant text as captured.
+- `<skill>/record-<date>.json` (since 0.1.3): the run record, written by `record.py` from the stream-json output: exit code, seconds, every tool call, skill invocations, last message, and the verdict of each grader that needs no model.
 
-Run all: `bash evals/run.sh` (builds fixtures, prints the checklist to verify manually inside Claude Code).
+Run all: `bash evals/run.sh` (builds fixtures, runs each skill with `claude -p`, writes the records, then prints `cluster.py`).
+`python3 evals/cluster.py [--date YYYY-MM-DD]` groups failed cases by their first mechanical mismatch, in this order: runner (exit code, timeout), skill not invoked, tool count, file, text, judge. It also reads native results under `results/`. Read a transcript only where the bucket says the skill itself did something wrong.
