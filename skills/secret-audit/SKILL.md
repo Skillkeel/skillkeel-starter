@@ -15,7 +15,7 @@ description: Use when the user asks whether secrets were committed, before open-
    2. Remove from HEAD: move to env/`.env` (gitignored), commit.
    3. Purge history only if the repo is/will be public or shared: `git filter-repo --path <file> --invert-paths` or `--replace-text`, then force-push with `--force-with-lease` and tell collaborators to re-clone. Do not run this without explicit approval.
    4. Add prevention: `.gitignore` entries, pre-commit hook (`gitleaks git --pre-commit --staged .`; `protect --staged` on gitleaks older than 8.19), and this plugin's `secret-scan` hook.
-6. Print the findings table and the checklist. Never print full secret values; mask to first 4 + last 2 chars.
+6. Print the findings table and the checklist. Never print full secret values; mask to first 4 + last 2 chars. That includes notes: when a value matches a known placeholder (the AWS docs example key, a vendor's sample token), say so by name and keep the masked form, never the full string.
 
 ## Rules
 - Never rewrite history or force-push in this skill; propose only.

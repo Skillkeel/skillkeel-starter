@@ -1,0 +1,84 @@
+{
+ "case": "dependency-audit",
+ "date": "2026-09-17",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.274",
+ "exit": 0,
+ "seconds": 53.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 4
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && for f in package.json pyproject.toml requirements*.txt Cargo.toml go.mod Gemfile composer.json; do [ -e \\\"$f\\\" ] && echo \\\"FOUND: $f\\\"; done; echo ---; cat package.json 2>/dev/n"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm --version && npm install --package-lock-only --ignore-scripts 2>&1 | tail -5 && echo \\\"--- AUDIT (before) ---\\\" && npm audit --json 2>/dev/null | node -e '\\nlet s=\\\"\\\";process.stdin.o"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm view lodash version dist-tags.latest time.4.18.1 --json && npm outdated --json; grep -c '\\\"test\\\"' package.json || echo \\\"no test script\\\"\", \"description\": \"Check lodash latest versio"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cp package-lock.json /tmp/lock-before.json && npm install lodash@4.18.1 --save-exact --package-lock-only --ignore-scripts 2>&1 | grep -v \\\"npm notice\\\" ; echo \\\"--- package.json ---\\\"; ca"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+ ],
+ "last_message": "## Dependency audit \u2014 `dep-fixture` (npm)\n\n**Ecosystem:** npm only (`package.json`, 1 direct dep). No lockfile existed, so I generated one with `npm install --package-lock-only` (no `node_modules` written) so `npm audit` could run.\n\n### Findings (before)\n\n| package | installed | severity | fixed in | direct/transitive | breaking? |\n|---|---|---|---|---|---|\n| lodash | 4.17.15 | **high** (4 high, 2 moderate advisories) | 4.18.1 | direct | no \u2014 minor bump |\n\nAdvisories:\n- high \u2014 Command Injection (`<4.17.21`) [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm)\n- high \u2014 Prototype Pollution (`<4.17.19`) [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw)\n- high \u2014 Code Injection via `_.template` imports (`<=4.17.23`) [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc)\n- moderate \u2014 ReDoS (`<4.17.21`) [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9)\n- moderate \u2014 Prototype Pollution in `_.unset`/`_.omit` (`<=4.17.23`) [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh)\n- moderate \u2014 Prototype Pollution in `_.unset`/`_.omit` (`<=4.17.22`) [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg)\n\n### Fixes\n\n**Tier 1 (applied):** `lodash 4.17.15 \u2192 4.18.1` via `npm install lodash@4.18.1 --save-exact` (kept the manifest's exact-pin style; no `--force`). Lockfile diff is just the lodash `version`/`resolved`/`integrity` lines \u2014 no other packages changed.\n\n**Tier 2 (ask first):** none \u2014 no major bumps or overrides needed.\n\n**Tier 3 (unfixable):** none.\n\n### Before / after\n- Before: `high: 1, total: 1`\n- After: `total: 0` \u2014 `npm audit` reports **0 vulnerabilities**\n\n### Caveats\n- **Tests:** `package.json` has no `test` script, so I couldn't run a suite to validate the bump. 4.18.x is a minor release and the lodash changelog is security/bug fixes, but if this fixture stands in for real code, a smoke test before merging is worth doing.\n- `package-lock.json` is new and untracked \u2014 commit it alongside the `package.json` change if you want the audit to be reproducible in CI.\n\nWorking tree: `M package.json`, `?? package-lock.json`. Nothing committed.",
+ "graders": [
+  {
+   "name": "audit-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 2 (min 1)"
+  },
+  {
+   "name": "bumped",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\"lodash\":\\\\s*\"\\\\^?4\\\\.(?:17\\\\.2[1-9]|1[89]\\\\.|[2-9]\\\\d\\\\.)' found in {source: file, path: package.json} (contains)"
+  },
+  {
+   "name": "lodash-listed",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'lodash' found in last_message (contains)"
+  },
+  {
+   "name": "no-force",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 2,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

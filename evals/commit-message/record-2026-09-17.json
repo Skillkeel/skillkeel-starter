@@ -1,0 +1,76 @@
+{
+ "case": "commit-message",
+ "date": "2026-09-17",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.274",
+ "exit": 0,
+ "seconds": 18.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:commit-message\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git status --porcelain && echo --- && git diff --cached --stat && echo --- && git diff --cached\", \"description\": \"Show staged changes and diff\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git commit -m \\\"$(cat <<'MSG'\\nfeat(calc): add clamp function with test\\nMSG\\n)\\\" && git log -1 --stat\", \"description\": \"Commit staged changes and show the result\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:commit-message\"}"
+ ],
+ "last_message": "Committed as `ad849ba`:\n\n```\nfeat(calc): add clamp function with test\n```\n\n- `calc.py`: adds `clamp(x, lo, hi)` returning `max(lo, min(x, hi))`\n- `test_calc.py`: new `test_clamp` asserting `clamp(5, 0, 3) == 3`\n\nNo body was needed \u2014 the *why* is evident from the diff. Per the skill's rules, I did not add a `Co-Authored-By` trailer, and the message makes no claim about tests passing since I didn't run them.",
+ "graders": [
+  {
+   "name": "committed",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 1 (min 1)"
+  },
+  {
+   "name": "no-trailer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Co-Authored-By:|Generated with \\\\[' not found in trace (not_contains)"
+  },
+  {
+   "name": "quality",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "subject-format",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\\\([\\\\w./-]+\\\\))?: [^\\\\n\"]{1,50}' found in trace (contains)"
+  }
+ ],
+ "passed": true
+}

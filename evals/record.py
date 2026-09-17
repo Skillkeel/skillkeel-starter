@@ -19,11 +19,32 @@ ROOT = Path(os.environ.get("SKILLKEEL_EVAL_ROOT") or Path(__file__).resolve().pa
 
 HOME = str(Path.home())
 PLUGIN = str(Path(__file__).resolve().parent.parent)
+WORKDIR = [""]
+
+
+def git_identity():
+    """The maintainer's global git name and email, so a run that picked them up is scrubbed generically."""
+    import subprocess
+    out = []
+    for k in ("user.name", "user.email"):
+        v = subprocess.run(["git", "config", "--global", k], capture_output=True, text=True).stdout.strip()
+        if len(v) > 3:
+            out.append(v)
+    return out
+
+
+IDENTITY = git_identity()
 
 
 def scrub(s):
-    """No machine paths in a shipped record: the plugin checkout and the home directory become placeholders."""
-    return s.replace(PLUGIN, "<plugin>").replace(HOME, "~")
+    """No machine paths or personal identity in a shipped record: the plugin checkout, the case workdir, the home
+    directory (also in its dashed form, as temp dirs encode it) and the maintainer's git identity become placeholders."""
+    if WORKDIR[0]:
+        s = s.replace(WORKDIR[0], "<workdir>")
+    s = s.replace(PLUGIN, "<plugin>").replace(HOME, "~").replace(HOME.strip("/").replace("/", "-"), "~")
+    for v in IDENTITY:
+        s = s.replace(v, "<git user>")
+    return s
 
 
 def parse_stream(path):
@@ -37,14 +58,16 @@ def parse_stream(path):
         except ValueError:
             continue
         t = ev.get("type")
-        if t == "assistant":
+        if t == "system" and ev.get("subtype") == "init":
+            result["version"] = ev.get("claude_code_version") or ev.get("version") or ""
+        elif t == "assistant":
             for c in ev.get("message", {}).get("content", []):
                 if c.get("type") == "tool_use":
                     tools.append({"name": c.get("name", ""), "input": json.dumps(c.get("input", {}), sort_keys=True)})
                 elif c.get("type") == "text" and c.get("text"):
                     texts.append(c["text"])
         elif t == "result":
-            result = ev
+            result = {**result, **ev}
     return tools, texts, result
 
 
@@ -63,7 +86,22 @@ def front_matter(md):
     return meta, m.group(2)
 
 
-def grade(g, tools, last_message, workdir):
+def regex_target(g, tools, texts, last_message, workdir):
+    """Text a regex grader runs against: last_message, trace (every tool input and assistant text),
+    a file in the workdir ({source: file, path: X}), or None when the target is not judged here."""
+    t = g.get("target", "last_message")
+    if t == "last_message":
+        return last_message
+    if t == "trace":
+        return "\n".join([x["input"] for x in tools] + texts)
+    m = re.match(r"\{\s*source:\s*file\s*,\s*path:\s*([^}]+?)\s*\}", t)
+    if m:
+        p = Path(workdir) / m.group(1).strip("'\"")
+        return p.read_text(errors="replace") if p.exists() else ""
+    return None
+
+
+def grade(g, tools, last_message, workdir, texts=()):
     """(passed | None, detail) for one grader front matter."""
     typ = g.get("type")
     if typ == "tool_used":
@@ -72,11 +110,14 @@ def grade(g, tools, last_message, workdir):
         n, lo, hi = len(hits), int(g.get("min", 1)), g.get("max")
         ok = n >= lo and (hi is None or n <= int(hi))
         return ok, f"{g.get('tool')} calls matching: {n} (min {lo}" + (f", max {hi}" if hi is not None else "") + ")"
-    if typ == "regex" and g.get("target", "last_message") == "last_message":
+    if typ == "regex":
+        text = regex_target(g, tools, list(texts), last_message, workdir)
+        if text is None:
+            return None, f"regex target {g.get('target')!r}: not judged here"
         flags = re.I if "i" in g.get("flags", "") else 0
-        found = re.search(g["pattern"], last_message, flags) is not None
+        found = re.search(g["pattern"], text, flags) is not None
         ok = found if g.get("match", "contains") == "contains" else not found
-        return ok, f"pattern {g['pattern']!r} {'found' if found else 'not found'} in last message ({g.get('match', 'contains')})"
+        return ok, f"pattern {g['pattern']!r} {'found' if found else 'not found'} in {g.get('target', 'last_message')} ({g.get('match', 'contains')})"
     if typ == "file_exists":
         exists = bool(list(Path(workdir).glob(g["path"])))  # plain path or glob, as the native grader takes it
         want = str(g.get("exists", "true")).lower() != "false"
@@ -86,6 +127,7 @@ def grade(g, tools, last_message, workdir):
 
 def main():
     case, stream, exit_code, seconds, workdir = sys.argv[1:6]
+    WORKDIR[0] = str(Path(workdir).resolve())
     date = sys.argv[6] if len(sys.argv) > 6 else __import__("datetime").date.today().isoformat()
     tools, texts, result = parse_stream(stream)
     last = result.get("result") or (texts[-1] if texts else "")
@@ -97,7 +139,7 @@ def main():
     gdir = ROOT / "evals" / case / "graders"
     for gf in sorted(gdir.glob("*.md")) if gdir.exists() else []:
         meta, _ = front_matter(gf.read_text())
-        passed, detail = grade(meta, tools, last, workdir)
+        passed, detail = grade(meta, tools, last, workdir, texts)
         graders.append({"name": gf.stem, "type": meta.get("type"), "tool": meta.get("tool"), "weight": int(meta.get("weight", 1)), "passed": passed, "detail": detail})
     exit_code = int(exit_code)
     rec = {

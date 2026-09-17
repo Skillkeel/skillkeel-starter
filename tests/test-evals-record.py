@@ -16,6 +16,8 @@ GRADERS = {
     "masked.md": "---\ntype: regex\ntarget: last_message\npattern: 'AKIAIOSFODNN7EXAMPLE'\nmatch: not_contains\n---\n",
     "report-written.md": "---\ntype: file_exists\npath: 'reports/secret-*.md'\nexists: true\n---\n",
     "quality.md": "---\ntype: llm_judge\nprompt: 'Is the remediation order right?'\n---\n",
+    "no-trailer.md": "---\ntype: regex\ntarget: trace\npattern: 'Co-Authored-By|Generated with'\nmatch: not_contains\n---\n",
+    "report-mentions-env.md": "---\ntype: regex\ntarget: {source: file, path: reports/secret-2026-09-17.md}\npattern: 'report'\nmatch: contains\n---\n",
 }
 
 
@@ -32,7 +34,7 @@ def text(s):
 
 
 def result(msg, subtype="success", is_error=False, turns=4):
-    return json.dumps({"type": "result", "subtype": subtype, "is_error": is_error, "num_turns": turns, "result": msg, "version": "2.1.272"})
+    return json.dumps({"type": "result", "subtype": subtype, "is_error": is_error, "num_turns": turns, "result": msg})
 
 
 def stream(lines):
@@ -40,7 +42,7 @@ def stream(lines):
 
 
 GOOD = stream([
-    json.dumps({"type": "system", "subtype": "init"}),
+    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272"}),
     event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
     event_assistant(tool("Bash", command="git log -p --all | grep -E AKIA")),
     event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
@@ -83,15 +85,17 @@ def main():
         check(rec["tool_counts"] == {"Skill": 1, "Bash": 1}, f"tool counts {rec['tool_counts']}")
         check(rec["claude_version"] == "2.1.272", "version from result event")
         check(str(ROOT) not in rec["last_message"] and str(Path.home()) not in rec["last_message"] and "<plugin>" in rec["last_message"], f"machine paths scrubbed: {rec['last_message'][-80:]}")
+        check(rec["workdir"] == "<workdir>" and str(root) not in json.dumps(rec), f"workdir scrubbed: {rec['workdir']}")
         check((root / "evals" / CASE / "transcript-2026-09-17.raw.md").read_text().startswith("Found .env"), "raw transcript holds assistant text")
         judged = {g["name"]: g["passed"] for g in rec["graders"]}
-        check(judged == {"masked": True, "no-rewrite": True, "quality": None, "report-written": True, "rotate-first": True, "skill-fired": True}, f"graders on good run: {judged}")
+        check(judged == {"masked": True, "no-rewrite": True, "no-trailer": True, "quality": None, "report-mentions-env": True, "report-written": True, "rotate-first": True, "skill-fired": True}, f"graders on good run: {judged}")
 
         rec2, _ = run_record(root, CASE + "-noskill", NO_SKILL, 0, "2026-09-17")
         check(rec2["passed"] is False, "no-skill run must fail")
         j2 = {g["name"]: g["passed"] for g in rec2["graders"]}
         check(j2["skill-fired"] is False, "skill-fired grader must fail when Skill was never called")
         check(j2["no-rewrite"] is False, "no-rewrite grader must fail on filter-repo")
+        check(j2["no-trailer"] is True, "trace target reads tool inputs and texts")
 
         rec3, _ = run_record(root, CASE + "-timeout", TIMEOUT, 124, "2026-09-17")
         check(rec3["passed"] is False and rec3["exit"] == 124, "timeout run keeps exit 124 and fails")

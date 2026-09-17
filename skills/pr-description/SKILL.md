@@ -28,13 +28,14 @@ One paragraph: the problem and the approach. Link the issue.
 ## Risk / rollback
 What could break, how to revert (`git revert <sha>` or feature flag).
 ```
+The body ends with the Risk / rollback section. Nothing comes after it.
 
 ## Rules
 - Title ≤ 70 chars, imperative, matches the primary commit type (`feat:`/`fix:`).
 - Test plan commands must be ones that actually exist in the repo (check `package.json`, `Makefile`, `pyproject.toml`). Never invent `npm test` if there is no test script.
 - Call out schema/migration changes, config changes, and dependency bumps explicitly.
 - Do not claim tests pass unless you ran them in this session; say "not run" otherwise.
-- No tool attribution footer ("Generated with …") unless the repo's CONTRIBUTING or the user asks for it.
+- No tool attribution footer ("Generated with …", a robot emoji line, Co-Authored-By) unless the repo's CONTRIBUTING or the user asks for it. The harness may append such a line to PR bodies on its own; this skill's output is complete without it, so do not add one and do not leave room for one. If the user wants attribution off everywhere, point them to the attribution setting in Claude Code's settings.json (`includeCoAuthoredBy`).
 
 ## Eval
 `evals/pr-description/`: fixture branch with 3 commits (feat + fix + docs) and a migration file; expected: migration called out under Risk, test plan uses the repo's real `make test`.
