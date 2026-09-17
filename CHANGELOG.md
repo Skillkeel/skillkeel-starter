@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 (2026-09-17)
+
+- guard-bash: git settings that make git run a command are now refused when set through `git config` or `git -c`: `core.fsmonitor`, `core.hooksPath`, `core.sshCommand`, `core.pager`, `core.editor`, `core.askPass`, `core.gitProxy`, `core.alternateRefsCommand`, `diff.external`, difftool and mergetool commands, merge drivers, filter clean/smudge/process, credential helpers, gpg programs, `sequence.editor`, uploadpack and receive hooks, and shell aliases (`alias.x '!...'`). Shell writes into a `.git/` path (`>> sub/.git/config`, `> .git/hooks/pre-commit`) and `mv`, `cp`, `ln` or `rsync` with a `.git` target are refused too. Reads (`--get`, `--list`, `cat .git/config`), `--unset`, and plain keys such as `user.email` or `core.autocrlf` pass. Prompted by accomplish.ai's Beltdown write-up (2026-09-11): a repo-planted `core.fsmonitor` in a nested `.git/config` ran outside the Claude Code sandbox because the harness runs its own git there (fixed upstream in 2.1.247). Before this release all five commands from that chain passed guard-bash.
+- tests: 20 new guard cases (64 total).
+- Known, on purpose: a `.git/config` edited through the Write or Edit tool is not covered by this hook; Claude Code's own file tools refuse `.git` writes.
+
 ## 0.1.3 (2026-09-17)
 
 - tests: CLI verb gate. `tests/cli-verbs.json` records the subcommands and flags that the latest releases of gitleaks, trufflehog, pip-audit and gh accept, read from each binary's own help output. `python3 tests/test-cli-verbs.py` greps every `<cli> <verb> --flag` out of the skill texts and fails on anything the snapshot does not know, so a renamed subcommand (gitleaks `detect` in 0.1.1) fails on the commit that touches the skill instead of in a transcript. Shape from u/EvalRaccoonDev on r/ClaudeCode.

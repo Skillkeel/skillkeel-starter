@@ -24,6 +24,17 @@ printf '%s' "$c" | grep -Eiq '(drop +(database|table|schema)|truncate +table|flu
 printf '%s' "$c" | grep -Eq '(terraform +destroy|kubectl +delete +(ns|namespace)|docker +system +prune +-a|docker +volume +prune)' && block "infra destroy"
 # 4. disk / system
 printf '%s' "$c" | grep -Eq '(^|[;&| ])(mkfs|dd +if=|shred|chmod +-R +777 +/|chown +-R +[^ ]+ +/( |$)|:\(\)\{ *:\|:& *\};:)' && block "disk/system destructive"
+# 6. git config keys that make git run a command (core.fsmonitor was the Claude Code sandbox escape, accomplish.ai
+#    "Beltdown" 2026-09-11; the harness runs its own git outside the sandbox), shell writes into a .git directory,
+#    and planting a directory as .git. Reads (--get, --list, cat) and plain keys (user.email, core.autocrlf) pass.
+gexec='core\.(fsmonitor|hookspath|sshcommand|gitproxy|askpass|pager|editor|alternaterefscommand)|diff\.[^ =]*(external|command)|(difftool|mergetool)\.[^ =]*cmd|merge\.[^ =]*driver|filter\.[^ =]*(clean|smudge|process)|credential\.[^ =]*helper|gpg\.[^ =]*program|sequence\.editor|uploadpack\.|receive\.'
+lc=$(printf '%s' "$c" | tr '[:upper:]' '[:lower:]')
+printf '%s' "$lc" | grep -Eq "git +config +(-[-a-z]+ +)*($gexec)[^ ]* +[^ -]" && block "git config key that executes a command"
+printf '%s' "$lc" | grep -Eq "git +config +(-[-a-z]+ +)*alias\.[^ ]+ +[\"']?!" && block "git shell alias"
+printf '%s' "$lc" | grep -Eq "git +(-c +|config +(-[-a-z]+ +)*)($gexec)[^ ]*=" && block "git config key that executes a command"
+printf '%s' "$lc" | grep -Eq "git +-c +alias\.[^ =]+=[\"']?!" && block "git shell alias"
+printf '%s' "$c" | grep -Eq '(>|>>|\| *tee) *[^ ]*(^|/)?\.git/' && block "shell write into a .git directory"
+printf '%s' "$c" | grep -Eq '(^|[;&| ])(mv|cp|ln|rsync) +[^|;&]* +[^ ]*(^|/)\.git/?( |$)' && block "a directory planted as .git"
 # 5. piping remote scripts into a shell
 printf '%s' "$c" | grep -Eq '(curl|wget)[^|]*\| *(sudo +)?(bash|sh|zsh|python3?)( |$)' && block "remote script piped to shell"
 exit 0

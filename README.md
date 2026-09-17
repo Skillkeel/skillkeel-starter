@@ -15,7 +15,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 
 | Hook | What it does |
 |---|---|
-| `guard-bash` | Blocks destructive shell commands before they run: `rm -rf /`, `git push --force` without `--force-with-lease`, `git reset --hard`, `git clean -f`, `DROP DATABASE`, `terraform destroy`, `curl \| bash`, `dd` and `mkfs`. Claude sees the reason and asks you instead. |
+| `guard-bash` | Blocks destructive shell commands before they run: `rm -rf /`, `git push --force` without `--force-with-lease`, `git reset --hard`, `git clean -f`, `DROP DATABASE`, `terraform destroy`, `curl \| bash`, `dd` and `mkfs`, and since 0.1.4 git settings that run commands (`core.fsmonitor`, hooks paths, shell aliases) plus writes into `.git/`. Claude sees the reason and asks you instead. |
 | `secret-scan` | Blocks a file write that contains an AWS, OpenAI, Anthropic, GitHub or Slack key, a private key, a JWT, or a hard-coded password. |
 | `session-start` | Prints two lines at session start: current git state and the list of skills. |
 
@@ -34,7 +34,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 
 ## How it is tested
 
-The hooks have 44 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. As of 2026-09-13 all eight pass; secret-audit was rerun on 2026-09-15 after its gitleaks commands changed. You can read the transcripts before you install anything.
+The hooks have 64 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. As of 2026-09-13 all eight pass; secret-audit was rerun on 2026-09-15 after its gitleaks commands changed. You can read the transcripts before you install anything.
 
 Since 0.1.3 the eval runner also writes a run record per case (`evals/<skill>/record-<date>.json`: exit code, every tool call, skill invocations, grader verdicts that need no model) and `evals/cluster.py` groups failed cases by their first mechanical mismatch, so a runner or grader fault shows up as one bucket instead of eight transcript reads. The skill texts call four external CLIs (gitleaks, trufflehog, pip-audit, gh); `tests/test-cli-verbs.py` checks every subcommand and flag they name against `tests/cli-verbs.json`, a snapshot read from the latest release of each CLI, so a renamed subcommand fails the test before it fails for you.
 
@@ -61,7 +61,7 @@ SKILLKEEL_ALLOW_SECRETS=1 claude     # secret-scan off
 ## Run the tests
 
 ```
-bash tests/test-hooks.sh            # 44 hook cases
+bash tests/test-hooks.sh            # 64 hook cases
 python3 tests/test-cli-verbs.py     # skill texts vs the CLI snapshot
 python3 tests/test-evals-record.py  # eval record and cluster tools
 ```
