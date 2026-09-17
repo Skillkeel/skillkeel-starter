@@ -17,6 +17,7 @@ the skill; a case that fails at "runner" has nothing to read yet. Idea from u/Ev
 audit (r/ClaudeCode, 2026-09-16).
 
 Usage: python3 evals/cluster.py [--date YYYY-MM-DD] [--json]
+       python3 evals/cluster.py --show <case>      # the latest run record of one case: tools, graders, verdict
 """
 import json, os, sys
 from pathlib import Path
@@ -81,7 +82,20 @@ def first_mismatch_native(run, cfg):
     return bucket(g), f"{g['name']}: {(g.get('explanation') or '')[:120]}"
 
 
+def show(case):
+    recs = sorted(ROOT.glob(f"evals/{case}/record-*.json"))
+    if not recs:
+        print(f"no run record for {case}"); return
+    r = json.loads(recs[-1].read_text())
+    print(f"{case} on Claude Code {r['claude_version']} ({r['date']}): exit {r['exit']}, {r['turns']} turns, {r['seconds']:.0f} s, tools {r['tool_counts']}")
+    for g in r["graders"]:
+        print(f"  {('PASS' if g['passed'] else 'FAIL' if g['passed'] is False else '?'):<4} {g['name']:<18} {g['detail'][:70]}")
+    print("  ->", "PASS" if r["passed"] else "FAIL")
+
+
 def main():
+    if "--show" in sys.argv:
+        show(sys.argv[sys.argv.index("--show") + 1]); return
     date = sys.argv[sys.argv.index("--date") + 1] if "--date" in sys.argv else None
     rows, total = [], 0
     for case, r in from_records(date).items():
