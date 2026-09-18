@@ -156,6 +156,7 @@ def main():
         "tool_counts": counts, "tools": [{"name": t["name"], "input": t["input"][:200]} for t in tools],
         "skills": skills, "last_message": last,
         "plugins": plugins, "extra_plugins": extra,
+        "mode": os.environ.get("SKILLKEEL_EVAL_MODE", "named"),
         "graders": graders,
         "passed": exit_code == 0 and not result.get("is_error") and not extra and all(g["passed"] is not False for g in graders),
     }

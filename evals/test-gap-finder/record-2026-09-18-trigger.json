@@ -1,0 +1,81 @@
+{
+ "case": "test-gap-finder",
+ "date": "2026-09-18-trigger",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 33.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -path ./.git -prune -o -type f -print | head -100 && echo '--- config' && ls -a && echo '--- churn' && git log --since=90.days --format='' --name-only | sort | uniq -c | sort -rn &"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"for f in pkg/auth.py pkg/payments.py pkg/utils.py tests/test_utils.py; do echo \\\"=== $f\\\"; cat \\\"$f\\\"; done; echo '--- runner'; (python3 -m pytest --version 2>&1 | head -1); ls pyproject."
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+ ],
+ "last_message": "## Test gap map\n\nLayout: `tests/test_*.py`, pytest-style (bare `assert`). No pytest config and pytest isn't installed here, so I didn't run coverage \u2014 the map below is from grepping test imports.\n\n| Module | Test files | Tests | Churn (90d) | Lines | Critical path |\n|---|---|---|---|---|---|\n| `pkg/auth.py` | \u2014 | 0 | **4 commits** | 10 | yes (auth) |\n| `pkg/payments.py` | \u2014 | 0 | 1 | 4 | yes (payments) |\n| `pkg/utils.py` | `tests/test_utils.py` | 1 | 1 | 2 | no |\n| `pkg/__init__.py` | \u2014 | \u2014 | 1 | 0 | skip (empty) |\n\nOnly two modules are untested, so the \"top 5\" collapses to two proposals. `utils.slugify` is already covered and not worth expanding right now.\n\n## 1. `tests/test_auth.py` \u2014 highest priority\n\nTouched in 4 of the last 4 commits (`fix(auth): tweak 1\u20133`) with zero tests guarding it. `hash_password(p, salt)` and `verify(p, salt, h)` in `pkg/auth.py:3-7`.\n\n- `test_hash_password_is_deterministic` \u2014 same `(p, salt)` twice \u2192 identical hex digest; pins the algorithm so the next \"tweak\" can't silently change it.\n- `test_hash_password_is_sha256_of_salt_then_password` \u2014 assert against `hashlib.sha256((salt + p).encode()).hexdigest()` computed inline. The concatenation order (`salt + p`, not `p + salt`) is the exact thing a refactor would flip.\n- `test_different_salt_changes_hash` \u2014 same password, two salts \u2192 different digests.\n- `test_verify_round_trip` \u2014 `verify(p, salt, hash_password(p, salt))` is `True`.\n- `test_verify_rejects_wrong_password_and_wrong_salt` \u2014 `verify(\"other\", salt, h)` and `verify(p, \"othersalt\", h)` are both `False`.\n- Boundary: `test_hash_password_empty_strings` \u2014 `hash_password(\"\", \"\")` returns the known SHA-256 of `b\"\"` (`e3b0c442\u2026b855`); documents that empty input is currently accepted rather than rejected.\n\n## 2. `tests/test_payments.py`\n\n`charge(amount_cents, currency=\"EUR\")` at `pkg/payments.py:1-4`.\n\n- `test_charge_returns_amount_and_default_currency` \u2014 `charge(500)` \u2192 `{\"amount\": 500, \"currency\": \"EUR\"}`.\n- `test_charge_respects_explicit_currency` \u2014 `charge(500, currency=\"USD\")` \u2192 currency `\"USD\"`.\n- `test_charge_rejects_zero` \u2014 `charge(0)` raises `ValueError` matching `\"amount must be positive\"` (the `<= 0` boundary, not just negatives).\n- `test_charge_rejects_negative` \u2014 `charge(-1)` raises `ValueError`.\n\nNot derivable from the code, so not proposed: currency validation and non-int amounts \u2014 `charge(1.5)` and `charge(5, currency=\"xyz\")` currently pass through untouched. If that's unintended, that's a code change first, then a test.\n\nWant me to write either of these files? I'd match the existing style in `tests/test_utils.py` (plain functions, direct `from pkg.x import ...`).",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "trigger",
+ "graders": [
+  {
+   "name": "auth-top",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'auth\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "concrete-cases",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "no-files-written",
+   "type": "tool_used",
+   "tool": "Write",
+   "weight": 2,
+   "passed": true,
+   "detail": "Write calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "payments",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'payments\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

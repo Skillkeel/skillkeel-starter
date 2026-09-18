@@ -1,0 +1,81 @@
+{
+ "case": "commit-message",
+ "date": "2026-09-18-trigger",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 19.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:commit-message\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git status --porcelain && git diff --cached --stat && git diff --cached\", \"description\": \"Show staged changes and diff\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git commit -m \\\"$(cat <<'MSG'\\nfeat(calc): add clamp helper with test\\nMSG\\n)\\\" && git log -1 --stat\", \"description\": \"Commit staged changes and show result\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:commit-message\"}"
+ ],
+ "last_message": "Committed as `8f70639` \u2014 `feat(calc): add clamp helper with test` (2 files, +7). No body was needed since the diff is self-explanatory, and I didn't run the test so the message doesn't claim it passes.\n\nOne note: I omitted the `Co-Authored-By` trailer because the commit-message skill's rules say not to add tool attribution unless the repo or you ask for it. Say the word if you'd like it amended in.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "trigger",
+ "graders": [
+  {
+   "name": "committed",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 1 (min 1)"
+  },
+  {
+   "name": "no-trailer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Co-Authored-By:|Generated with \\\\[' not found in trace (not_contains)"
+  },
+  {
+   "name": "quality",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "subject-format",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\\\([\\\\w./-]+\\\\))?: [^\\\\n\"]{1,50}' found in trace (contains)"
+  }
+ ],
+ "passed": true
+}

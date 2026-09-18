@@ -1,0 +1,97 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-18-trigger",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 38.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 4
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd \\\"<workdir>\\\" && ls -la && echo \\\"--- tree\\\" && find . -path ./.git -prune -o -type f -print | head -50 && echo \\\"--- log\\\" && git log --format=%s -30\", \"description\": \"Inventory repo "
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd \\\"<workdir>\\\" && echo \\\"--- package.json\\\" && cat package.json && echo \\\"--- .nvmrc\\\" && cat .nvmrc && echo \\\"--- lock\\\" && cat pnpm-lock.yaml && echo \\\"--- ci\\\" && cat .github/workflo"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd \\\"<workdir>\\\" && node -e 'const p=require(\\\"./package.json\\\");for(const [k,v] of Object.entries(p.scripts))console.log(k,\\\"=>\\\",v)' && ls node_modules 2>&1 | head -1; ls tsconfig* vite"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd \\\"<workdir>\\\" && cat > CLAUDE.md <<'EOF'\\n# CLAUDE.md\\n\\n## Project\\n`shop` \\u2014 a TypeScript app built with Vite, tested with Vitest, linted with ESLint.\\nNode 20 (`.nvmrc`), packag"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "Wrote `CLAUDE.md` (35 lines) at the repo root.\n\nWhat it's based on:\n- **Commands** come straight from `package.json` scripts (`dev`, `build`, `test:ci`, `lint`) and `.github/workflows/ci.yml` (`pnpm i --frozen-lockfile` \u2192 `pnpm test:ci`). It lists `pnpm test:ci`, not `npm test`, since that's what CI actually runs and `npm test` doesn't exist.\n- **Project** facts: Node 20 from `.nvmrc`, pnpm 9 from `packageManager`.\n- **Conventions**: Conventional Commits, inferred from the only commit (`chore: init`).\n- **Do not**: `pnpm-lock.yaml` flagged as never hand-edited; no npm/yarn.\n\nTwo caveats, stated plainly:\n- `pnpm` isn't installed here and there's no `node_modules`, so I could not execute the scripts. I verified each listed command exists by parsing `package.json` with `node` and cross-checking CI; I did not invent any. I skipped `corepack`/installs since those write to the tree.\n- The \"single test file\" example (`pnpm test:ci src/index.test.ts`) uses standard `vitest run <file>` syntax, but no test files exist yet \u2014 adjust the path once you have one.\n\nNo `tsconfig`, `vite.config`, or ESLint config exists in the repo yet, so I didn't describe any of those. Tell me if you'd like anything changed (e.g. branch naming or PR merge style, which I couldn't detect from a single commit), and it's not committed \u2014 say the word if you want it committed.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "trigger",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}

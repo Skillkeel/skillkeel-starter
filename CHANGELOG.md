@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- evals: trigger mode. `bash evals/run.sh --trigger` runs every case with the fixture's `trigger:` line, a request that never names the skill ("Commit the staged changes."), so the skill-fired grader tests the description and not only the invocation path; records carry `mode: trigger` and docs/compat.md has a Trigger prompts column. First run on 2.1.276: 8/8 fired. Two graders were stricter than the skill text and are fixed: claude-md-init `no-install-run` matched `pnpm install` inside the heredoc that wrote CLAUDE.md (now command position only); readme-refresh `deadlink-handled` demanded the dead link removed while the skill allows a `<!-- TODO: verify -->` marker (now accepts the marked form). Found through the HN thread on skill triggering (item 49744398), no user report.
 - evals: `evals/record.py` records the plugin list from the run's init event; any plugin besides skillkeel-starter fails the case as "not isolated" and `cluster.py` files it under runner with the plugin names. The 09-17 leak (a user-level hook loaded into every run while the suite stayed green) would have failed on the record line instead of in a transcript read. 25 record checks.
 
 ## 0.1.5 (2026-09-17)

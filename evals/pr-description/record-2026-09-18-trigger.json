@@ -1,0 +1,89 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-18-trigger",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 26.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git remote -v; git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; git log --oneline main..HEAD; echo ---; git diff --stat main...HEAD; echo ---; git diff main...HEAD; echo ---; ls"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -path ./.git -prune -o -type f -print; ls migrations\", \"description\": \"List repo files and migrations\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "No remote is configured, so the base is local `main`. Three commits, 6 added lines across `orders.py`, `migrations/0002_note.sql`, and `README.md`. The repo's only test entrypoint is `make test` (`python -m pytest -q`); there are no test files on the branch and I didn't run it.\n\n**Title:** `feat(orders): add optional note field`\n\n```markdown\n## Summary\nOrders can now carry a free-text note. This adds a nullable `note` column to the `orders` table, a `create_order(note=None)` entrypoint in `orders.py` that accepts the note, and a length cap (500 chars) so arbitrarily large notes are rejected before they hit the database. README updated to mention the feature.\n\n## Changes\n- `migrations/0002_note.sql`: new migration, `ALTER TABLE orders ADD COLUMN note TEXT` (nullable, no default, no backfill).\n- `orders.py`: new `create_order(note=None)`; raises `ValueError(\"note too long\")` when the note exceeds 500 characters.\n- `README.md`: one-line mention that orders support notes.\n\n## Test plan\n- [ ] `make test`: runs `python -m pytest -q`. Not run in this session; note the branch adds no test files, so `create_order` length-cap behaviour (500 accepted, 501 rejected, `None` accepted) is currently unverified.\n- [ ] Apply `migrations/0002_note.sql` against a dev database and confirm `orders.note` exists and is nullable.\n- [ ] Manually call `create_order(note=\"x\" * 501)` and confirm `ValueError`.\n\n## Risk / rollback\n- **Schema change**: `0002_note.sql` is additive (nullable column), so existing rows and readers are unaffected, but it must be applied before the new code is deployed.\n- The 500-char cap is enforced only in Python, not in the schema (`TEXT` has no length constraint); direct DB writes can bypass it.\n- Rollback: `git revert 7b56368 923706d f42804f`, then drop the column (`ALTER TABLE orders DROP COLUMN note`) if the migration has already been applied.\n```",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "trigger",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

@@ -5,4 +5,4 @@ cat > package.json <<'J'
 J
 echo "console.log('hi')" > server.js
 printf '# svc\n\nA tiny service.\n\n## Run\n\n```\nnpm run start\n```\n\n## Docs\n\nSee [API docs](docs/api.md).\n\n## License\n\nMIT\n' > README.md
-gi add -A; gi commit -qm "chore: init"; echo "prompt: Use the readme-refresh skill to audit and fix README.md."
+gi add -A; gi commit -qm "chore: init"; echo "prompt: Use the readme-refresh skill to audit and fix README.md."; echo "trigger: Audit README.md and fix what is stale."
