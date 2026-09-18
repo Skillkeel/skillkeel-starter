@@ -5,7 +5,9 @@ evals/run.sh calls this after each case with the stream-json output. It writes
   evals/<case>/record-<date>.json   exit code, seconds, every tool call (name + input summary),
                                     tool counts, skill invocations, last message, and the verdict
                                     of each grader in evals/<case>/graders/ that can be judged from
-                                    the record (tool_used, regex on last_message, file_exists).
+                                    the record (tool_used, regex on last_message, file_exists),
+                                    and the plugins the init line says were loaded: anything besides
+                                    the plugin under test means the run was not isolated, and fails.
   evals/<case>/transcript-<date>.raw.md   the assistant text, as the text runner wrote it before.
 llm_judge graders are listed as "unjudged"; they need a model run and are not what this step is for.
 
@@ -19,6 +21,7 @@ ROOT = Path(os.environ.get("SKILLKEEL_EVAL_ROOT") or Path(__file__).resolve().pa
 
 HOME = str(Path.home())
 PLUGIN = str(Path(__file__).resolve().parent.parent)
+PLUGIN_NAME = "skillkeel-starter"
 WORKDIR = [""]
 
 
@@ -60,6 +63,7 @@ def parse_stream(path):
         t = ev.get("type")
         if t == "system" and ev.get("subtype") == "init":
             result["version"] = ev.get("claude_code_version") or ev.get("version") or ""
+            result["plugins"] = [p.get("name", "") for p in ev.get("plugins", []) if isinstance(p, dict)]
         elif t == "assistant":
             for c in ev.get("message", {}).get("content", []):
                 if c.get("type") == "tool_use":
@@ -142,6 +146,8 @@ def main():
         passed, detail = grade(meta, tools, last, workdir, texts)
         graders.append({"name": gf.stem, "type": meta.get("type"), "tool": meta.get("tool"), "weight": int(meta.get("weight", 1)), "passed": passed, "detail": detail})
     exit_code = int(exit_code)
+    plugins = result.get("plugins") or []
+    extra = [p for p in plugins if p != PLUGIN_NAME]
     rec = {
         "case": case, "date": date, "workdir": scrub(workdir),
         "claude_version": result.get("version") or "",
@@ -149,14 +155,16 @@ def main():
         "result_subtype": result.get("subtype"), "is_error": bool(result.get("is_error")),
         "tool_counts": counts, "tools": [{"name": t["name"], "input": t["input"][:200]} for t in tools],
         "skills": skills, "last_message": last,
+        "plugins": plugins, "extra_plugins": extra,
         "graders": graders,
-        "passed": exit_code == 0 and not result.get("is_error") and all(g["passed"] is not False for g in graders),
+        "passed": exit_code == 0 and not result.get("is_error") and not extra and all(g["passed"] is not False for g in graders),
     }
     out = ROOT / "evals" / case
     (out / f"record-{date}.json").write_text(json.dumps(rec, indent=1) + "\n")
     (out / f"transcript-{date}.raw.md").write_text("\n\n".join(texts) + ("\n" if texts else ""))
     verdicts = " ".join(f"{g['name']}={'PASS' if g['passed'] else 'FAIL' if g['passed'] is False else '?'}" for g in graders)
-    print(f"   exit={exit_code} turns={rec['turns']} tools={sum(counts.values())} {verdicts} -> {'PASS' if rec['passed'] else 'FAIL'}")
+    leak = f" extra plugins={','.join(extra)}" if extra else ""
+    print(f"   exit={exit_code} turns={rec['turns']} tools={sum(counts.values())} {verdicts}{leak} -> {'PASS' if rec['passed'] else 'FAIL'}")
 
 
 if __name__ == "__main__":

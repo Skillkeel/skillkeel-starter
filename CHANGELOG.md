@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- evals: `evals/record.py` records the plugin list from the run's init event; any plugin besides skillkeel-starter fails the case as "not isolated" and `cluster.py` files it under runner with the plugin names. The 09-17 leak (a user-level hook loaded into every run while the suite stayed green) would have failed on the record line instead of in a transcript read. 25 record checks.
+
 ## 0.1.5 (2026-09-17)
 
 - secret-audit: a note that a found value matches a known placeholder (the AWS docs example key) names the placeholder and keeps the masked form. On Claude Code 2.1.274 the skill masked the key in the findings table and then quoted it in full in a note; the masked grader caught it.

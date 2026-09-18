@@ -62,6 +62,8 @@ def native_cases(date):
 def first_mismatch_record(r):
     if r["exit"] != 0 or r.get("is_error") or (r.get("result_subtype") not in (None, "success")):
         return "runner", f"exit {r['exit']}" + (f", {r['result_subtype']}" if r.get("result_subtype") else "")
+    if r.get("extra_plugins"):
+        return "runner", "not isolated, extra plugins loaded: " + ", ".join(r["extra_plugins"])
     failed = [g for g in r["graders"] if g["passed"] is False]
     if not failed:
         return None, None
