@@ -1,10 +1,10 @@
 {
  "case": "readme-refresh",
- "date": "2026-09-18-trigger",
+ "date": "2026-09-18",
  "workdir": "<workdir>",
  "claude_version": "2.1.276",
  "exit": 0,
- "seconds": 26.0,
+ "seconds": 36.0,
  "turns": 6,
  "result_subtype": "success",
  "is_error": false,
@@ -19,26 +19,26 @@
   },
   {
    "name": "Bash",
-   "input": "{\"command\": \"ls -la && echo ---README--- && cat -n README.md && echo ---FILES--- && find . -path ./.git -prune -o -type f -print\", \"description\": \"List repo files and print README with line numbers\"}"
+   "input": "{\"command\": \"ls -la && echo ---- && cat -n README.md && echo ---- && for f in package.json Makefile pyproject.toml Cargo.toml .nvmrc .python-version Dockerfile; do [ -e $f ] && { echo \\\"== $f\\\"; cat $"
   },
   {
    "name": "Bash",
-   "input": "{\"command\": \"cat package.json && echo --- && cat server.js && echo --- && test -e docs/api.md && echo \\\"docs exists\\\" || echo \\\"docs/api.md missing\\\"; ls LICENSE* 2>/dev/null || echo \\\"no LICENSE file"
+   "input": "{\"command\": \"cat server.js; echo; test -e docs/api.md && echo \\\"docs exists\\\" || echo \\\"docs/api.md MISSING\\\"; ls LICENSE* 2>/dev/null || echo \\\"no LICENSE file\\\"; node --version; timeout 10 npm test "
   },
   {
    "name": "Bash",
-   "input": "{\"command\": \"cat > README.md <<'EOF'\\n# svc\\n\\nA tiny service.\\n\\n## Run\\n\\n```\\nnpm run dev\\n```\\n\\n## Test\\n\\n```\\nnpm test\\n```\\n\\n## Docs\\n\\n<!-- TODO: verify \\u2014 docs/api.md does not exist in "
+   "input": "{\"command\": \"python3 - <<'EOF'\\np='README.md'; s=open(p).read()\\ns=s.replace(\\\"npm run start\\\\n```\\\\n\\\",\\\"npm run dev\\\\n```\\\\n\\\\n## Test\\\\n\\\\n```\\\\nnpm test\\\\n```\\\\n\\\",1)\\ns=s.replace(\\\"See [API docs]"
   }
  ],
  "skills": [
   "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
  ],
- "last_message": "Applied the factual fixes; the diff above is what changed.\n\n**Fixed**\n- `npm run start` \u2192 `npm run dev` (the only run script in `package.json`).\n- Added a minimal **Test** section using the existing `npm test` script.\n\n**Flagged, not removed** (can't verify, so marked with `<!-- TODO: verify -->` rather than deleted)\n- `docs/api.md` link \u2014 the file doesn't exist. Either add the doc or drop the section.\n- \"MIT\" license \u2014 there's no `LICENSE` file and no `license` field in `package.json`. If MIT is intended, add a `LICENSE` file and `\"license\": \"MIT\"`.\n\nI skipped an Install section since `package.json` declares no dependencies. Nothing is committed; let me know if you want a commit.",
+ "last_message": "Done. Summary of changes to `README.md`:\n\n- **`npm run start` \u2192 `npm run dev`** \u2014 `package.json` has no `start` script; `dev` runs `node server.js`.\n- **Added a minimal `## Test` section** with `npm test` \u2014 the script exists and I confirmed it runs cleanly (`node --test`, exit 0).\n- **`docs/api.md` link** \u2014 the file doesn't exist. Per the skill rules I didn't delete the section; it's marked with a `<!-- TODO: verify -->` comment. Either create `docs/api.md` or drop the Docs section \u2014 your call.\n\nFlagged but not changed:\n- **License: MIT** \u2014 there's no `LICENSE` file in the repo. Worth adding one if MIT is intended.\n- No Install section was added: the project has no dependencies or lockfile, so there's nothing to install beyond having Node available.\n\nRest of the prose is untouched. Nothing is committed \u2014 say the word if you'd like a commit.",
  "plugins": [
   "skillkeel-starter"
  ],
  "extra_plugins": [],
- "mode": "trigger",
+ "mode": "named",
  "graders": [
   {
    "name": "deadlink-handled",

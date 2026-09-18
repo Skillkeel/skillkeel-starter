@@ -1,0 +1,101 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-18",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 45.0,
+ "turns": 8,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 5
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && echo \\\"--- git log\\\" && git log --format=%s -30 && echo \\\"--- find\\\" && find . -path ./.git -prune -o -type f -print | head -100\", \"description\": \"Inventory repo files and git h"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"echo \\\"--- .nvmrc\\\" && cat .nvmrc && echo \\\"--- package.json\\\" && cat package.json && echo \\\"--- lock\\\" && cat pnpm-lock.yaml && echo \\\"--- ci.yml\\\" && cat .github/workflows/ci.yml && ech"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"(command -v pnpm && pnpm --version; command -v node && node --version) 2>&1; echo \\\"--- scripts\\\"; pnpm run 2>&1 | head -20; echo \\\"--- node_modules?\\\"; ls node_modules 2>&1 | head -2; ec"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm run 2>&1; echo \\\"--- corepack\\\"; corepack --version 2>&1\", \"description\": \"List package scripts via npm and check for corepack\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > CLAUDE.md <<'EOF'\\n# CLAUDE.md\\n\\n## Project\\n\\n`shop` \\u2014 a private TypeScript app built with Vite, tested with Vitest, linted with ESLint.\\nNode 20 (`.nvmrc`), pnpm 9.0.0 (`pac"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "Wrote `CLAUDE.md` (46 lines) at the repo root.\n\n**What it's based on** (all read from the repo, nothing invented):\n- `package.json` scripts: `dev`, `build`, `test:ci`, `lint` \u2014 confirmed via `npm run` listing. Note there's no plain `test` script, so the file points at `pnpm test:ci`, matching what `.github/workflows/ci.yml` actually runs.\n- `.nvmrc` \u2192 Node 20; `packageManager` \u2192 pnpm 9.0.0.\n- `pnpm-lock.yaml` flagged as do-not-edit-by-hand.\n- Git history is a single `chore: init` commit, so the convention note is Conventional Commits with no branch-naming rule yet.\n\n**Two caveats on verification:**\n- `pnpm` isn't on PATH in this environment and there's no `node_modules`, so I confirmed the script names/definitions but did not execute `vitest`, `eslint`, or `vite` themselves (that would have required an install, which writes to the tree).\n- The \"single test\" example (`pnpm test:ci src/index.test.ts`) uses a file that doesn't exist yet \u2014 it's there to show the Vitest filter syntax. Adjust the path once you have real tests, or tell me to drop that row.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}

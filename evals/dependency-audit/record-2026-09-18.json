@@ -1,0 +1,89 @@
+{
+ "case": "dependency-audit",
+ "date": "2026-09-18",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 62.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 4
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && for f in package.json package-lock.json pnpm-lock.yaml yarn.lock pyproject.toml requirements*.txt Cargo.toml go.mod Gemfile composer.json; do [ -e \\\"$f\\\" ] && echo \\\"FOUND: $f\\\""
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm install --package-lock-only --ignore-scripts 2>&1 | tail -5; echo \\\"=== AUDIT (before) ===\\\"; npm audit --json 2>/dev/null | tee /tmp/audit-before.json | node -e '\\nconst a=JSON.parse"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm view lodash versions --json | node -e 'const v=JSON.parse(require(\\\"fs\\\").readFileSync(0));console.log(v.filter(x=>x.startsWith(\\\"4.17.2\\\")||x.startsWith(\\\"4.18\\\")).join(\\\" \\\"))'; ech"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cp package-lock.json /tmp/lock-before.json && npm install lodash@4.18.1 --save-exact --ignore-scripts 2>&1 | tail -3; echo \\\"=== package.json ===\\\"; cat package.json; echo \\\"=== lockfile "
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+ ],
+ "last_message": "## Dependency audit \u2014 `dep-fixture` (npm)\n\n**Ecosystem:** npm only (`package.json`; no lockfile existed, so I generated one with `npm install --package-lock-only` to make `npm audit` runnable). No other manifests present.\n\n### Findings (before)\n\n| package | installed | severity | fixed in | direct/transitive | breaking? |\n|---|---|---|---|---|---|\n| lodash | 4.17.15 | **high** | 4.18.1 | direct | no (minor bump) |\n\nAdvisories rolled up on that one package:\n\n| advisory | severity | affected |\n|---|---|---|\n| [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) Command Injection | high | <4.17.21 |\n| [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw) Prototype Pollution | high | \u22653.7.0 <4.17.19 |\n| [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) Code Injection via `_.template` imports | high | \u22644.17.23 |\n| [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9) ReDoS | moderate | \u22654.0.0 <4.17.21 |\n| [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh) Prototype Pollution `_.unset`/`_.omit` | moderate | \u22644.17.23 |\n| [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg) Prototype Pollution `_.unset`/`_.omit` | moderate | \u22644.17.22 |\n\n### Fixes\n\n**Tier 1 (applied):** `lodash 4.17.15 \u2192 4.18.1` (minor, within your \"no major bumps\" constraint).\n- Minimal fixing version is 4.18.0, but the registry marks it deprecated (\"Bad release\"), so 4.18.1 is the smallest safe target \u2014 it's also what `npm audit` reports as `fixAvailable`.\n- Kept your exact-pin style (`--save-exact`), no caret introduced.\n- Lockfile diff: only the `lodash` version/resolved/integrity lines changed \u2014 no other packages touched.\n- Tests: the project has no `test` script or test directory, so I ran a require + `_.chunk` smoke test instead; it passes on 4.18.1.\n- Did **not** run `npm audit fix --force`.\n\n**Tier 2 (ask first):** none \u2014 no major bumps or transitive overrides needed.\n\n**Tier 3 (document):** none \u2014 every advisory has a fix.\n\n### Before / after\n\n| | critical | high | moderate | low | total |\n|---|---|---|---|---|---|\n| before | 0 | 1 | 0 | 0 | **1** |\n| after | 0 | 0 | 0 | 0 | **0** |\n\n### Working tree\n\n- `M package.json` \u2014 the version bump\n- `?? package-lock.json` \u2014 new; worth committing so future audits are reproducible\n- `?? node_modules/` \u2014 created by the install; there's no `.gitignore` in this repo, so add one before committing (I didn't create it since it's outside the audit scope)\n\nI haven't committed anything \u2014 say the word and I'll stage the manifest + lockfile with a commit message.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "audit-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 2 (min 1)"
+  },
+  {
+   "name": "bumped",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\"lodash\":\\\\s*\"\\\\^?4\\\\.(?:17\\\\.2[1-9]|1[89]\\\\.|[2-9]\\\\d\\\\.)' found in {source: file, path: package.json} (contains)"
+  },
+  {
+   "name": "lodash-listed",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'lodash' found in last_message (contains)"
+  },
+  {
+   "name": "no-force",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 2,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

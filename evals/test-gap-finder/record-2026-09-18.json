@@ -1,0 +1,81 @@
+{
+ "case": "test-gap-finder",
+ "date": "2026-09-18",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 32.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -type f -not -path './.git/*' | sort && echo --- && wc -l $(find . -name '*.py' -not -path './.git/*') && echo --- && git log --since=90.days --format='' --name-only | sort | uniq "
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"for f in pkg/auth.py pkg/payments.py pkg/utils.py tests/test_utils.py; do echo \\\"=== $f\\\"; cat -n $f; done; echo ---; grep -rl 'auth\\\\|payments' tests/ ; echo \\\"grep-exit=$?\\\"; python3 -c"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+ ],
+ "last_message": "## Test gap report\n\n**Layout:** `tests/test_*.py` \u2192 pytest (no runner config file; pytest isn't installed in this environment, so no coverage report was produced \u2014 no percentage claimed).\n\n### Module \u2192 test map\n\n| Module | Test files | Test count | Lines | Churn (90d commits) | Critical path |\n|---|---|---|---|---|---|\n| `pkg/auth.py` | \u2014 | 0 | 10 | **4** | yes \u2014 auth |\n| `pkg/payments.py` | \u2014 | 0 | 4 | 1 | yes \u2014 payments |\n| `pkg/utils.py` | `tests/test_utils.py` | 1 | 2 | 1 | no |\n| `pkg/__init__.py` | \u2014 | \u2014 | 0 | 1 | (empty, skipped) |\n\n### Ranking\n\n1. **`pkg/auth.py`** \u2014 untested, 4\u00d7 the churn of anything else (`fix(auth): tweak 1/2/3` in the last three commits), and it's the credential-verification path. Highest value.\n2. **`pkg/payments.py`** \u2014 untested, money-handling, has an explicit validation branch that nothing exercises.\n3. `pkg/utils.py` \u2014 already covered by `test_slugify`; not proposed.\n\nOnly two untested modules exist, so the \"top 5\" collapses to two proposals.\n\n### Proposals\n\n#### 1. `tests/test_auth.py` \u2014 `hash_password(p, salt)`, `verify(p, salt, h)`\n\n- `test_hash_password_is_deterministic` \u2014 same `(p, salt)` twice \u2192 identical 64-char hex digest (sha256 hexdigest).\n- `test_hash_password_salt_changes_digest` \u2014 `hash_password(\"pw\", \"a\") != hash_password(\"pw\", \"b\")`; guards the `salt + p` concatenation actually mixing salt in.\n- `test_verify_round_trip` \u2014 `h = hash_password(\"pw\", \"s\")`; `verify(\"pw\", \"s\", h)` is `True`.\n- `test_verify_rejects_wrong_password_or_salt` \u2014 `verify(\"PW\", \"s\", h)` and `verify(\"pw\", \"t\", h)` both `False`.\n- `test_hash_password_known_vector` \u2014 boundary: `hash_password(\"\", \"\")` equals `hashlib.sha256(b\"\").hexdigest()` (`e3b0c442\u2026`); pins the exact algorithm so the next \"tweak\" commit can't silently change it. Worth noting: the concatenation is order-dependent (`salt + p`), so `hash_password(\"ab\",\"c\") != hash_password(\"cb\",\"a\")` but `hash_password(\"b\",\"a\") == hash_password(\"\", \"ab\")` \u2014 a test asserting the known vector locks that in.\n\n#### 2. `tests/test_payments.py` \u2014 `charge(amount_cents, currency=\"EUR\")`\n\n- `test_charge_happy_path` \u2014 `charge(1250)` \u2192 `{\"amount\": 1250, \"currency\": \"EUR\"}` (default currency applied).\n- `test_charge_explicit_currency` \u2014 `charge(500, currency=\"USD\")[\"currency\"] == \"USD\"`.\n- `test_charge_zero_raises` \u2014 `charge(0)` raises `ValueError(\"amount must be positive\")` (boundary: `<= 0` includes zero).\n- `test_charge_negative_raises` \u2014 `charge(-1)` raises `ValueError`.\n\nNo test files were written. Say the word and I'll add both files in the existing style (plain `pytest` functions, direct `from pkg.x import \u2026`) and run them \u2014 you'd need `pip install pytest` first since it's not installed here.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "auth-top",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'auth\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "concrete-cases",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "no-files-written",
+   "type": "tool_used",
+   "tool": "Write",
+   "weight": 2,
+   "passed": true,
+   "detail": "Write calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "payments",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'payments\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

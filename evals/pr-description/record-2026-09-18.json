@@ -1,0 +1,89 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-18",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 26.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git remote -v; git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; echo ---; git log --oneline main..HEAD; echo ---; git diff --stat main...HEAD; echo ---; git diff main...HEAD; ec"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls migrations; find . -name 'test*' -not -path './.git/*'; git log -1 --format=%B 8b7c1c1\", \"description\": \"List migrations and any test files\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "No remote is configured, so I compared against local `main` (3 commits, 3 files). Note the repo has no test files yet, so `make test` will collect nothing \u2014 I've flagged that in the test plan rather than claiming coverage.\n\n**Title:** `feat(orders): add optional note field to orders`\n\n```markdown\n## Summary\nOrders had no way to carry free-text context from the customer or operator. This adds an optional `note` field to orders: a new nullable `note` column on the `orders` table, a `create_order(note=None)` entry point in `orders.py` that accepts it, and a 500-character cap so unbounded text can't be stored.\n\n## Changes\n- **Schema / migration** \u2014 `migrations/0002_note.sql` adds a nullable `note TEXT` column to `orders`. Must be applied before deploying the code change.\n- **`orders.py`** \u2014 new `create_order(note=None)` that returns the order payload with the note; raises `ValueError(\"note too long\")` when the note exceeds 500 characters.\n- **`README.md`** \u2014 mentions that orders support notes.\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`): not run in this session. The repo currently has no test files, so this will collect zero tests \u2014 consider adding cases for `create_order()` with no note, a 500-char note, and a 501-char note before merging.\n- [ ] Apply `migrations/0002_note.sql` against a dev database and confirm `orders.note` exists and is nullable.\n- [ ] Manual: call `create_order(note=\"x\" * 501)` and confirm it raises `ValueError`.\n\n## Risk / rollback\n- Schema change: adds a nullable column, so it is backward-compatible with existing rows and older code. Rollback of the column requires a manual `ALTER TABLE orders DROP COLUMN note` \u2014 there is no down migration in this PR.\n- The 500-char limit is enforced only in `create_order`; nothing prevents longer values being written through other paths or directly in SQL.\n- Code rollback: `git revert 7636fb5 8b7c1c1 c2579fb`.\n```",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}
