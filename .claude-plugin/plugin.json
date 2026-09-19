@@ -1,7 +1,7 @@
 {
   "name": "skillkeel-starter",
   "description": "Tested guardrail hooks and repo-hygiene skills for Claude Code. Every skill ships with an eval transcript.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": {
     "name": "Skillkeel",
     "email": "hi@skillkeel.com"

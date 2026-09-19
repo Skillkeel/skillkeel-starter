@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.1.7 (2026-09-19)
 
+- README: "This plugin stops it" is now "blocks the commands and writes listed below (a guard, not a sandbox; the tamper-cases corpus shows what it catches and what it does not)"; the Kit price line says "plus VAT where it applies, added at checkout".
 - evals: `evals/record.py` records `escapes`, tool calls whose path (Read, Edit, Write, Glob, Grep) or Bash command before any heredoc names the plugin checkout, the home directory, a parent directory or a sibling case; one escape fails the case and `cluster.py` files it under runner as "reads outside the fixture". Text the run writes is not checked, so a CLAUDE.md that mentions `~/.claude` passes. The 0.1.6 claim (no transcript read the grader) was a grep; this makes it a record field. Today's eight records re-graded from their streams: 0 escapes. 30 record checks.
+- Hooks and skill texts unchanged, 64 hook tests.
 
 ## 0.1.6 (2026-09-19)
 

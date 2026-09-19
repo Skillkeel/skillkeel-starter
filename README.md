@@ -4,7 +4,7 @@ Guard hooks and repo skills for [Claude Code](https://claude.com/claude-code). F
 
 [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/skillkeel-skillkeel-starter)](https://www.claudepluginhub.com/plugins/skillkeel-skillkeel-starter?ref=badge)
 
-Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-push over a teammate's branch, or write an API key straight into `config.py` if nothing stops it. This plugin stops it, and adds eight small skills for the boring parts of repo work.
+Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-push over a teammate's branch, or write an API key straight into `config.py` if nothing stops it. This plugin blocks the commands and writes listed below (it is a guard, not a sandbox; the tamper-cases corpus shows what it catches and what it does not), and adds eight small skills for the boring parts of repo work.
 
 ## Hooks
 
@@ -54,7 +54,7 @@ Or clone the repo and start Claude Code with `claude --plugin-dir ./skillkeel-st
 To try it for one session without installing anything, load the release archive by URL (Claude Code fetches it at startup and forgets it when the session ends):
 
 ```
-claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.6.zip
+claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.7.zip
 ```
 
 The eight skills alone, without the three hooks, also install through `npx skills add skillkeel/skillkeel-starter -g -a claude-code`; that route copies `SKILL.md` folders and never a plugin's `hooks/hooks.json`, so guard-bash and secret-scan are not part of it.
@@ -76,4 +76,4 @@ python3 tests/test-evals-record.py  # eval record and cluster tools
 
 ## Paid version
 
-Skillkeel Kit (€49) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
+Skillkeel Kit (€49 plus VAT where it applies, added at checkout) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
