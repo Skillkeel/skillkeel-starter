@@ -64,6 +64,9 @@ def first_mismatch_record(r):
         return "runner", f"exit {r['exit']}" + (f", {r['result_subtype']}" if r.get("result_subtype") else "")
     if r.get("extra_plugins"):
         return "runner", "not isolated, extra plugins loaded: " + ", ".join(r["extra_plugins"])
+    if r.get("escapes"):
+        e = r["escapes"][0]
+        return "runner", f"reads outside the fixture ({len(r['escapes'])}): {e['tool']} {e['path'][:80]} [{e['why']}]"
     failed = [g for g in r["graders"] if g["passed"] is False]
     if not failed:
         return None, None

@@ -62,6 +62,25 @@ LEAKED = stream([
     event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
     result("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run."),
 ])
+ESCAPED = stream([
+    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272", "plugins": [{"name": "skillkeel-starter", "version": "0.1.6"}]}),
+    event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
+    event_assistant(tool("Read", file_path=f"{ROOT}/evals/{CASE}/graders/masked.md")),
+    event_assistant(tool("Bash", command="cat ../other-case/expected.txt")),
+    event_assistant(tool("Bash", command="git log -p --all | grep -E AKIA")),
+    event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
+    result("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run."),
+])
+# a heredoc that writes documentation mentioning ~/.claude is not a read outside the fixture
+DOC_MENTION = stream([
+    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272", "plugins": [{"name": "skillkeel-starter", "version": "0.1.6"}]}),
+    event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
+    event_assistant(tool("Bash", command="cat > NOTES.md <<'EOF'\nSettings live in ~/.claude/settings.json; see ../docs in the parent project.\nEOF")),
+    event_assistant(tool("Write", file_path="reports/secret-2026-09-17.md", content="report ~/.claude ../x")),
+    event_assistant(tool("Bash", command="git log -p --all | grep -E AKIA")),
+    event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
+    result("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run."),
+])
 
 
 def run_record(root, case, body, exit_code, date):
@@ -115,6 +134,13 @@ def main():
         check("extra plugins" in out4, f"record line names the leak: {out4}")
         check(rec.get("extra_plugins") == [] and rec.get("plugins") == [], "init line without plugins records empty lists")
 
+        rec5, out5 = run_record(root, CASE + "-escaped", ESCAPED, 0, "2026-09-17")
+        check([e["tool"] for e in rec5.get("escapes", [])] == ["Read", "Bash"], f"reads outside the fixture recorded per tool: {rec5.get('escapes')}")
+        check("<plugin>" in rec5["escapes"][0]["path"] and "../" in rec5["escapes"][1]["path"], f"escape paths are scrubbed and kept: {rec5['escapes']}")
+        check(rec5["passed"] is False and "outside the fixture" in out5, f"a run that read outside the fixture fails and the record line says so: {out5}")
+        rec6, _ = run_record(root, CASE + "-docmention", DOC_MENTION, 0, "2026-09-17")
+        check(rec6.get("escapes") == [] and rec6["passed"] is True, f"a heredoc or file body mentioning ~/.claude or ../ is not an escape: {rec6.get('escapes')}")
+
         # a native result whose only failure is a regex grader
         nat = root / "evals" / "results" / "2026-09-17T10-00-00-000Z"
         nat.mkdir(parents=True)
@@ -131,9 +157,10 @@ def main():
         check(rows.get(CASE + "-noskill", {}).get("bucket") == "skill", f"no skill call -> skill bucket before the tool bucket: {rows.get(CASE + '-noskill')}")
         check(rows.get("native-case", {}).get("bucket") == "text", f"native regex failure -> text: {rows.get('native-case')}")
         table = subprocess.run([sys.executable, str(ROOT / "evals" / "cluster.py")], capture_output=True, text=True, env=env).stdout
-        check("4 failed of 5 cases" in table, table)
+        check("5 failed of 7 cases" in table, table)
         check(rows.get(CASE + "-leaked", {}).get("bucket") == "runner" and "caveman" in rows.get(CASE + "-leaked", {}).get("why", ""), f"foreign plugin -> runner bucket naming it: {rows.get(CASE + '-leaked')}")
         check(table.index("runner") < table.index("skill (") < table.index("text ("), "buckets print in mechanical order")
+        check(rows.get(CASE + "-escaped", {}).get("bucket") == "runner" and "outside the fixture" in rows.get(CASE + "-escaped", {}).get("why", ""), f"escape -> runner bucket: {rows.get(CASE + '-escaped')}")
     for f in fails:
         print("FAIL " + f)
     print(f"evals-record: {n[0] - len(fails)}/{n[0]} checks")

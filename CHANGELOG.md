@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- evals: `evals/record.py` records `escapes`, tool calls whose path (Read, Edit, Write, Glob, Grep) or Bash command before any heredoc names the plugin checkout, the home directory, a parent directory or a sibling case; one escape fails the case and `cluster.py` files it under runner as "reads outside the fixture". Text the run writes is not checked, so a CLAUDE.md that mentions `~/.claude` passes. The 0.1.6 claim (no transcript read the grader) was a grep; this makes it a record field. Today's eight records re-graded from their streams: 0 escapes. 30 record checks.
+
 ## 0.1.6 (2026-09-19)
 
 - evals: trigger mode. `bash evals/run.sh --trigger` runs every case with the fixture's `trigger:` line, a request that never names the skill ("Commit the staged changes."), so the skill-fired grader tests the description and not only the invocation path; records carry `mode: trigger` and docs/compat.md has a Trigger prompts column. First run on 2.1.276: 8/8 fired. Two graders were stricter than the skill text and are fixed: claude-md-init `no-install-run` matched `pnpm install` inside the heredoc that wrote CLAUDE.md (now command position only); readme-refresh `deadlink-handled` demanded the dead link removed while the skill allows a `<!-- TODO: verify -->` marker (now accepts the marked form, before or on the same line as the link; the named rerun on 2.1.276 put it after the link). Named rerun on 2.1.276: 8/8. Found through the HN thread on skill triggering (item 49744398), no user report.

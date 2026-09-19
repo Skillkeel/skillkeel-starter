@@ -129,6 +129,34 @@ def grade(g, tools, last_message, workdir, texts=()):
     return None, f"{typ}: needs a model run"
 
 
+PATH_FIELDS = ("file_path", "path", "notebook_path", "pattern")
+ESCAPE_MARKS = ("<plugin>", "~/", "../")
+
+
+def escapes(tools, workdir):
+    """Tool calls that reach outside the case directory: a path field (Read, Edit, Write, Glob, Grep) or the command
+    part of a Bash call (before any heredoc body) that names the plugin checkout, the home directory, a parent
+    directory or a sibling case. Inputs are already scrubbed, so the fixture is <workdir> and the checkout <plugin>.
+    Text the run writes (heredoc bodies, file contents) is not a read and is not checked."""
+    parent = str(Path(workdir).resolve().parent) + "/"
+    found = []
+    for t in tools:
+        try:
+            inp = json.loads(t["input"])
+        except ValueError:
+            continue
+        if t["name"] == "Bash":
+            probes = [str(inp.get("command", "")).split("<<")[0]]
+        else:
+            probes = [str(inp[k]) for k in PATH_FIELDS if k in inp]
+        for s in probes:
+            why = [m for m in ESCAPE_MARKS if m in s] + (["sibling case"] if parent in s and "<workdir>" not in s else [])
+            if why:
+                found.append({"tool": t["name"], "why": ", ".join(why), "path": s[:200]})
+                break
+    return found
+
+
 def main():
     case, stream, exit_code, seconds, workdir = sys.argv[1:6]
     WORKDIR[0] = str(Path(workdir).resolve())
@@ -148,6 +176,7 @@ def main():
     exit_code = int(exit_code)
     plugins = result.get("plugins") or []
     extra = [p for p in plugins if p != PLUGIN_NAME]
+    outside = escapes(tools, workdir)
     rec = {
         "case": case, "date": date, "workdir": scrub(workdir),
         "claude_version": result.get("version") or "",
@@ -155,16 +184,17 @@ def main():
         "result_subtype": result.get("subtype"), "is_error": bool(result.get("is_error")),
         "tool_counts": counts, "tools": [{"name": t["name"], "input": t["input"][:200]} for t in tools],
         "skills": skills, "last_message": last,
-        "plugins": plugins, "extra_plugins": extra,
+        "plugins": plugins, "extra_plugins": extra, "escapes": outside,
         "mode": os.environ.get("SKILLKEEL_EVAL_MODE", "named"),
         "graders": graders,
-        "passed": exit_code == 0 and not result.get("is_error") and not extra and all(g["passed"] is not False for g in graders),
+        "passed": exit_code == 0 and not result.get("is_error") and not extra and not outside and all(g["passed"] is not False for g in graders),
     }
     out = ROOT / "evals" / case
     (out / f"record-{date}.json").write_text(json.dumps(rec, indent=1) + "\n")
     (out / f"transcript-{date}.raw.md").write_text("\n\n".join(texts) + ("\n" if texts else ""))
     verdicts = " ".join(f"{g['name']}={'PASS' if g['passed'] else 'FAIL' if g['passed'] is False else '?'}" for g in graders)
     leak = f" extra plugins={','.join(extra)}" if extra else ""
+    leak += f" reads outside the fixture={len(outside)}" if outside else ""
     print(f"   exit={exit_code} turns={rec['turns']} tools={sum(counts.values())} {verdicts}{leak} -> {'PASS' if rec['passed'] else 'FAIL'}")
 
 

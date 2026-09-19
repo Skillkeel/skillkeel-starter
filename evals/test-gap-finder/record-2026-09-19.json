@@ -38,6 +38,7 @@
   "skillkeel-starter"
  ],
  "extra_plugins": [],
+ "escapes": [],
  "mode": "named",
  "graders": [
   {
