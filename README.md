@@ -17,7 +17,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 |---|---|
 | `guard-bash` | Blocks destructive shell commands before they run: `rm -rf /`, `git push --force` without `--force-with-lease`, `git reset --hard`, `git clean -f`, `DROP DATABASE`, `terraform destroy`, `curl \| bash`, `dd` and `mkfs`, and since 0.1.4 git settings that run commands (`core.fsmonitor`, hooks paths, shell aliases) plus writes into `.git/`. Claude sees the reason and asks you instead. |
 | `secret-scan` | Blocks a file write that contains an AWS, OpenAI, Anthropic, GitHub or Slack key, a private key, a JWT, or a hard-coded password. |
-| `session-start` | Prints two lines at session start: current git state and the list of skills. |
+| `session-start` | Gives Claude two lines of context at session start: the current git state and the list of skills. Nothing is printed to you; ask Claude what Skillkeel says and it answers from that brief. |
 
 ## Skills
 
@@ -58,6 +58,20 @@ claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/
 ```
 
 The eight skills alone, without the three hooks, also install through `npx skills add skillkeel/skillkeel-starter -g -a claude-code`; that route copies `SKILL.md` folders and never a plugin's `hooks/hooks.json`, so guard-bash and secret-scan are not part of it.
+
+## Check it is on
+
+Nothing prints after the install. Two ways to see the plugin working:
+
+In Claude Code, ask: what does Skillkeel say in this session? The answer comes from the session brief: "Skillkeel Starter active: guard-bash (blocks destructive shell), secret-scan (blocks credentials in writes)", followed by the eight skill names.
+
+From a clone, feed the hook one command by hand:
+
+```
+echo '{"tool_input":{"command":"git push --force origin main"}}' | bash hooks/guard-bash
+```
+
+It prints `skillkeel guard-bash: blocked (git push --force (use --force-with-lease)). Command: git push --force origin main` and exits 2. The same line with `--force-with-lease` exits 0 and prints nothing.
 
 ## Turning a guard off for one session
 
