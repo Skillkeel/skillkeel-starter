@@ -1,0 +1,89 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-19",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 23.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; git remote -v; git branch -a; echo ---; git log --oneline main..HEAD; echo ---; git diff --stat main...HEAD; echo ---; git diff "
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls migrations; find . -name \\\"test*\\\" -not -path \\\"./.git/*\\\"; git log -1 --format=%B 031b7ce\", \"description\": \"List migrations and check for existing tests\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "No remote is configured, so the base is local `main` (3 commits, 3 files). Here's the PR description:\n\n---\n\n**Title:** `feat(orders): add optional note field`\n\n## Summary\nOrders had no way to carry free-form customer or operator context. This adds an optional `note` to orders: a new nullable `note TEXT` column on the `orders` table, an `orders.create_order(note=None)` entry point that validates the note, and a README mention. Notes are capped at 500 characters \u2014 longer input raises `ValueError(\"note too long\")` rather than being silently truncated.\n\n## Changes\n- **Schema:** new migration `migrations/0002_note.sql` \u2014 `ALTER TABLE orders ADD COLUMN note TEXT` (nullable, no default, no backfill).\n- **`orders.py`:** new `create_order(note=None)` that rejects notes over 500 chars and returns the order dict with the note.\n- **`README.md`:** one-line mention that orders support notes.\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`): not run in this session. Note the repo currently has no test files, so this will collect zero tests \u2014 consider adding cases for `create_order()` with no note, a 500-char note, and a 501-char note before merging.\n- [ ] Apply `migrations/0002_note.sql` against a copy of the database and confirm `orders.note` exists and existing rows read back with `note = NULL`.\n\n## Risk / rollback\n- **Migration:** adds a nullable column, so it is backward-compatible with existing rows and code that doesn't reference `note`. There is no down migration; rolling back the schema requires a manual `ALTER TABLE orders DROP COLUMN note`.\n- **Validation:** the 500-char cap raises rather than truncates, so any caller passing longer notes will fail loudly.\n- **Revert code:** `git revert 6805605 031b7ce 59d358b` (drop the schema column separately, as above).",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

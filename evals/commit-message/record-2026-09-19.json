@@ -1,0 +1,81 @@
+{
+ "case": "commit-message",
+ "date": "2026-09-19",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 25.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:commit-message\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git status --porcelain && git diff --cached --stat && git diff --cached\", \"description\": \"Show staged changes and diff\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls CONTRIBUTING* 2>/dev/null; git commit -m \\\"$(cat <<'MSG'\\nfeat(calc): add clamp helper with test\\nMSG\\n)\\\" && git log -1 --stat\", \"description\": \"Commit staged changes and show result\""
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:commit-message\"}"
+ ],
+ "last_message": "Committed as `71e84cd`:\n\n```\nfeat(calc): add clamp helper with test\n```\n\n- `calc.py`: adds `clamp(x, lo, hi)` returning `max(lo, min(x, hi))`\n- `test_calc.py`: new file with `test_clamp` asserting `clamp(5, 0, 3) == 3`\n\nNo body was added since the *why* is evident from the diff. I did not run the test, so the message makes no claim about it passing. One note: the skill's own eval description expects a `fix(...)` subject mentioning an off-by-one, but the actual staged diff contains no bug fix \u2014 only a new function \u2014 so per the skill's rule (\"never describe changes that are not in the staged diff\") I classified it as `feat`.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "committed",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 1 (min 1)"
+  },
+  {
+   "name": "no-trailer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Co-Authored-By:|Generated with \\\\[' not found in trace (not_contains)"
+  },
+  {
+   "name": "quality",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "subject-format",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\\\([\\\\w./-]+\\\\))?: [^\\\\n\"]{1,50}' found in trace (contains)"
+  }
+ ],
+ "passed": true
+}

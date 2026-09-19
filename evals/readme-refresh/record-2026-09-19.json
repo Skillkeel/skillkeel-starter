@@ -1,0 +1,89 @@
+{
+ "case": "readme-refresh",
+ "date": "2026-09-19",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 32.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 4
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat -n README.md && echo \\\"=== TREE ===\\\" && find . -path ./.git -prune -o -type f -print | sort && echo \\\"=== PKG ===\\\" && cat package.json 2>/dev/null; ls Makefile pyproject.toml Cargo."
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat server.js; echo \\\"=== docs? ===\\\"; test -e docs/api.md && echo exists || echo \\\"docs/api.md missing\\\"; ls LICENSE* 2>/dev/null || echo \\\"no LICENSE file\\\"\", \"description\": \"Check serv"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm run dev 2>&1 | tail -3; echo \\\"--- exit: ${PIPESTATUS[0]}\\\"; npm test 2>&1 | tail -5; echo \\\"--- exit: ${PIPESTATUS[0]}\\\"\", \"description\": \"Dry-run the dev and test scripts\", \"timeout"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"python3 - <<'EOF'\\np='README.md'; s=open(p).read()\\ns=s.replace(\\\"```\\\\nnpm run start\\\\n```\\\", \\\"```\\\\nnpm run dev\\\\n```\\\")\\ns=s.replace(\\\"See [API docs](docs/api.md).\\\", \\\"<!-- TODO: ver"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+ ],
+ "last_message": "## README audit \u2014 findings\n\n| line | claim | reality | fix |\n|---|---|---|---|\n| 8 | `npm run start` | No `start` script in `package.json`; only `dev` (`node server.js`) and `test` | Changed to `npm run dev` (verified: runs, prints `hi`) |\n| 13 | Link to `docs/api.md` | No `docs/` directory exists | Dead link \u2014 kept the section, marked `<!-- TODO: verify -->` (can't invent the doc) |\n| \u2014 | No Test section | `npm test` (`node --test`) exists and exits 0 | Added a minimal **Test** section |\n| 17 | License: MIT | No `LICENSE` file and no `license` field in `package.json` | Left as-is (unverifiable, not provably wrong) \u2014 worth adding a `LICENSE` file if MIT is intended |\n\n## Diff applied\n\n```diff\n-npm run start\n+npm run dev\n ...\n ## Docs\n+<!-- TODO: verify -->\n See [API docs](docs/api.md).\n+\n+## Test\n+\n+```\n+npm test\n+```\n```\n\nTitle, description, and License prose are untouched. Two things you'll need to decide: either create `docs/api.md` or drop the Docs section, and whether to add a `LICENSE` file to back the MIT claim.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "deadlink-handled",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '(?s)\\\\A(?:(?!\\\\]\\\\(docs/api\\\\.md\\\\)).)*\\\\Z|TODO: verify(?:[^\\\\n]*\\\\n){1,3}[^\\\\n]*\\\\]\\\\(docs/api\\\\.md\\\\)|\\\\]\\\\(docs/api\\\\.md\\\\)[^\\\\n]*TODO: verify' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "dev-fixed",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'npm run dev' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "prose-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'A tiny service\\\\.[\\\\s\\\\S]*## License[\\\\s\\\\S]*MIT' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "start-gone",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm run start' not found in {source: file, path: README.md} (not_contains)"
+  }
+ ],
+ "passed": true
+}

@@ -1,0 +1,85 @@
+{
+ "case": "secret-audit",
+ "date": "2026-09-19",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 39.0,
+ "turns": 6,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:secret-audit\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"command -v gitleaks; command -v trufflehog; echo \\\"---\\\"; git log --all --oneline --format='%h %ad %an %s' --date=short; echo \\\"---\\\"; ls -la; echo \\\"---\\\"; git log --all --diff-filter=A "
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git log -p --all --format='COMMIT %h %ad %an' --date=short \\\\\\n| grep -nE -e 'AKIA[0-9A-Z]{16}' -e 'sk-(live|test|proj|ant)-[A-Za-z0-9_-]{16,}' -e 'gh[pousr]_[A-Za-z0-9]{30,}' -e 'xox[abp"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git show 302cde5:.env | sed -E 's/=(.{4}).*(.{2})$/=\\\\1****\\\\2/'; echo \\\"---untracked working tree---\\\"; git status --ignored --short\", \"description\": \"List keys in the historical .env (v"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:secret-audit\"}"
+ ],
+ "last_message": "## Secret audit \u2014 `<workdir>`\n\n**Tooling:** neither `gitleaks` nor `trufflehog` is installed, so I used the grep fallback over `git log -p --all` plus the sensitive-filename check. No history was rewritten and nothing was force-pushed.\n\n### Findings\n\n| # | Path | Introduced (sha, date, author) | Removed | Still in HEAD? | Type | Value (masked) | Classification |\n|---|------|-------------------------------|---------|----------------|------|----------------|----------------|\n| 1 | `.env` | `302cde5`, 2026-09-19, fixture (\"chore: add env\") | `2a9fba8` (\"chore: remove env\") | No | AWS access key ID (`AWS_ACCESS_KEY_ID`) | `AKIA****LE` | **Only in history (high)** \u2014 note: this matches the AWS documentation example access key |\n| 2 | `.env` | `302cde5`, 2026-09-19, fixture | `2a9fba8` | No | AWS secret access key (`AWS_SECRET_ACCESS_KEY`) | `wJal****EY` | **Only in history (high)** \u2014 note: this matches the AWS documentation example secret key |\n\nOther checks, all clean:\n- Working tree / HEAD: only `app.py`, `README.md`, `.gitignore` \u2014 no credentials.\n- No `*.pem`, `*.p12`, `id_rsa` files ever added.\n- No OpenAI/Anthropic, GitHub, Slack, JWT, private-key, or generic `password=`/`token=` matches anywhere in history.\n- `.gitignore` already contains `.env` (added in `2a9fba8`).\n\n**Caveat on the notes:** both values are byte-for-byte the well-known AWS docs placeholder pair. If these were pasted from AWS docs as a sample, they are a false positive and steps 1 and 3 below are unnecessary. If you're not certain that's what happened, treat them as real.\n\n### Remediation checklist (rotate first, then purge)\n\n- [ ] **1. Rotate** \u2014 if this key pair was ever real, deactivate/delete it in IAM and issue a new one. A credential is compromised once committed, regardless of later deletion from the tree.\n- [ ] **2. Remove from HEAD** \u2014 already done: `.env` was deleted in `2a9fba8` and `.env` is gitignored. Nothing further needed here.\n- [ ] **3. Purge history** (only if the repo is or will be public/shared \u2014 requires your explicit approval, I have *not* run this):\n  ```bash\n  git filter-repo --path .env --invert-paths\n  git push --force-with-lease --all && git push --force-with-lease --tags\n  ```\n  Then tell collaborators to re-clone (existing clones still hold `302cde5`).\n- [ ] **4. Prevention**\n  - Keep `.env` in `.gitignore` (\u2705 already present); consider adding `.env.*`, `*.pem`, `*.p12`.\n  - Add a pre-commit hook: `gitleaks git --pre-commit --staged .` (install gitleaks first \u2014 it isn't on this machine).\n  - The Skillkeel `secret-scan` hook is active in this session and will block credential-bearing writes going forward.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "found-env",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\.env' found in last_message (contains)"
+  },
+  {
+   "name": "masked",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'AKIAIOSFODNN7EXAMPLE|wJalrXUtnFEMI' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-rewrite",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 2,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "rotate-first",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'rotat' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

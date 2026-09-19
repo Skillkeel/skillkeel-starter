@@ -1,0 +1,97 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-19",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.276",
+ "exit": 0,
+ "seconds": 46.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 4
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && echo \\\"--- package.json\\\" && cat package.json 2>/dev/null && echo \\\"--- workflows\\\" && ls .github/workflows 2>/dev/null && cat .github/workflows/*.yml 2>/dev/null; echo \\\"--- ot"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -R src && cat pnpm-lock.yaml && echo \\\"--- pnpm run\\\" && (pnpm run 2>&1 | head -20 || true) && which pnpm node; node --version 2>/dev/null; git branch -a\", \"description\": \"Inspect src "
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat src/index.ts; echo \\\"--- corepack\\\"; timeout 60 corepack pnpm run 2>&1 | head -20\", \"description\": \"Read src entry and try listing pnpm scripts via corepack\", \"timeout\": 90000}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"jq -r '.scripts | to_entries[] | \\\"\\\\(.key): \\\\(.value)\\\"' package.json && cat > CLAUDE.md <<'EOF'\\n# CLAUDE.md\\n\\n## Project\\n`shop` \\u2014 a private TypeScript app built with Vite, test"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "Wrote `<workdir>/CLAUDE.md` (41 lines).\n\nWhat it's based on:\n- `package.json` scripts: `dev`, `build`, `test:ci` (`vitest run`), `lint` \u2014 pnpm 9 via `packageManager`, Node 20 from `.nvmrc`\n- `.github/workflows/ci.yml`: `pnpm i --frozen-lockfile` \u2192 `pnpm test:ci`, so the file uses `pnpm test:ci` (there is no `npm test`/`test` script)\n- `pnpm-lock.yaml` listed under **Do not** hand-edit\n- Layout is just `src/index.ts`; conventions note Conventional Commits from the single `chore: init` commit\n\nOne caveat, also noted inside the file: `pnpm` (and `corepack`) isn't installed on this machine, so I couldn't execute `pnpm run` to list scripts live \u2014 I verified them by reading `package.json` and the CI workflow instead. If you install pnpm and want that note removed, say so and I'll drop it. The \"single test\" line and \"colocate `*.test.ts`\" convention are inferred from Vitest defaults since no tests exist yet \u2014 correct them if your layout differs.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}
