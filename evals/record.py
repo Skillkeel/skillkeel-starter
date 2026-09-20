@@ -63,7 +63,9 @@ def parse_stream(path):
         t = ev.get("type")
         if t == "system" and ev.get("subtype") == "init":
             result["version"] = ev.get("claude_code_version") or ev.get("version") or ""
-            result["plugins"] = [p.get("name", "") for p in ev.get("plugins", []) if isinstance(p, dict)]
+            # built-in plugins (Claude Code 2.1.278 ships agents-md with path "builtin") load in every run and are not a leak
+            result["plugins"] = [p.get("name", "") for p in ev.get("plugins", []) if isinstance(p, dict)
+                                 and p.get("path") != "builtin" and not str(p.get("source", "")).endswith("@builtin")]
         elif t == "assistant":
             for c in ev.get("message", {}).get("content", []):
                 if c.get("type") == "tool_use":

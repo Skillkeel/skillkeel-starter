@@ -1,0 +1,86 @@
+{
+ "case": "readme-refresh",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 66.0,
+ "turns": 6,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -path ./.git -prune -o -type f -print && echo ---README--- && cat -n README.md && echo ---PKG--- && cat package.json 2>/dev/null; ls -la\", \"description\": \"List repo files and print"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat server.js; echo; test -e docs/api.md && echo \\\"docs/api.md exists\\\" || echo \\\"docs/api.md MISSING\\\"; ls LICENSE* 2>/dev/null || echo \\\"no LICENSE file\\\"; ls .nvmrc 2>/dev/null || echo"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > README.md <<'EOF'\\n# svc\\n\\nA tiny service.\\n\\n## Run\\n\\n```\\nnpm run dev\\n```\\n\\n## Test\\n\\n```\\nnpm test\\n```\\n\\n## Docs\\n\\n<!-- TODO: verify \\u2014 README linked docs/api.md but "
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+ ],
+ "last_message": "Done. Two factual fixes applied, one section added, one item left for you:\n\n- **`npm run start` \u2192 `npm run dev`** \u2014 `package.json` only defines `dev` and `test`.\n- **`docs/api.md` link removed** \u2014 no `docs/` directory exists. I kept the `## Docs` heading with a `<!-- TODO: verify -->` comment rather than deleting the section, per the skill's rules. If you'd rather drop the section entirely or add the docs file, say so.\n- **Added `## Test`** with `npm test` (verified: `node --test`).\n- **License: MIT** \u2014 not changed, but flagged: there's no `LICENSE` file and no `license` field in `package.json`. Worth adding one or the other so the claim is backed by something.\n\nTitle, description, and License prose are untouched. Nothing is committed.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "deadlink-handled",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '(?s)\\\\A(?:(?!\\\\]\\\\(docs/api\\\\.md\\\\)).)*\\\\Z|TODO: verify(?:[^\\\\n]*\\\\n){1,3}[^\\\\n]*\\\\]\\\\(docs/api\\\\.md\\\\)|\\\\]\\\\(docs/api\\\\.md\\\\)[^\\\\n]*TODO: verify' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "dev-fixed",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'npm run dev' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "prose-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'A tiny service\\\\.[\\\\s\\\\S]*## License[\\\\s\\\\S]*MIT' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "start-gone",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm run start' not found in {source: file, path: README.md} (not_contains)"
+  }
+ ],
+ "passed": true
+}

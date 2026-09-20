@@ -1,0 +1,94 @@
+{
+ "case": "changelog",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 28.0,
+ "turns": 6,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:changelog\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git describe --tags --abbrev=0 && echo --- && git log --no-merges --format='%h %s%n%b' \\\"$(git describe --tags --abbrev=0)..HEAD\\\" && echo --- && ls && cat CHANGELOG.md 2>/dev/null\", \"des"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > CHANGELOG.md <<'EOF'\\n# Changelog\\n\\nAll notable changes to this project will be documented in this file.\\n\\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"sed -i 's/- \\\\*\\\\*BREAKING:\\\\*\\\\* Dropped support for Node 16; Node 18 or later is now required\\\\./- **BREAKING:** Dropped support for Node 16./' CHANGELOG.md && sed -n '8,20p' CHANGELOG."
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:changelog\"}"
+ ],
+ "last_message": "Created `CHANGELOG.md` (it didn't exist) covering `v0.1.0..HEAD`:\n\n```markdown\n## [Unreleased]\n\n### Added\n\n- **BREAKING:** Dropped support for Node 16.\n- Added `/health` API endpoint.\n- Added export to CSV (#12).\n\n### Fixed\n\n- Empty rows are now handled correctly during import.\n\n## [0.1.0]\n```\n\nTraceability:\n- `1082556 feat!: drop Node 16 support` \u2192 BREAKING, listed first\n- `77dcecc feat(api): add /health endpoint` \u2192 Added\n- `a4023fd feat: add export to CSV (#12)` \u2192 Added\n- `5547b8c fix: handle empty rows in import` \u2192 Fixed\n- `b3d0542 chore: bump eslint` \u2192 omitted (not user-visible)\n\nThe file is untracked and uncommitted. If you want to cut a release, say the version and I'll rename `[Unreleased]` to `[X.Y.Z] - 2026-09-20` and propose the tag command (given the breaking change, `0.2.0` would be the conventional bump for a pre-1.0 project).",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "breaking-first",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '### Added\\\\s*\\\\n- \\\\*\\\\*BREAKING' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "chore-omitted",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'eslint' not found in {source: file, path: CHANGELOG.md} (not_contains)"
+  },
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CHANGELOG.md exists (want present)"
+  },
+  {
+   "name": "issue-ref-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '#12' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "unreleased",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '## \\\\[Unreleased\\\\]' found in {source: file, path: CHANGELOG.md} (contains)"
+  }
+ ],
+ "passed": true
+}

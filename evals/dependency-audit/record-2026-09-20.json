@@ -1,0 +1,98 @@
+{
+ "case": "dependency-audit",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 68.0,
+ "turns": 9,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 6
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && cat package.json && ls pyproject.toml requirements*.txt Cargo.toml go.mod Gemfile composer.json 2>/dev/null; command -v npm pnpm yarn; npm --version\", \"description\": \"Inspect re"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm install --package-lock-only --ignore-scripts 2>&1 | tail -5; echo \\\"--- audit ---\\\"; npm audit --json 2>&1 | head -120\", \"description\": \"Generate lockfile and run npm audit\", \"timeout"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm audit --json | jq '.metadata'; npm view lodash versions --json | jq -r '.[]' | tail -8; git status --short\", \"description\": \"Show audit counts, latest lodash versions, git status\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm view lodash@4.18.0 deprecated time.modified 2>&1; npm view lodash@4.18.1 time.modified; npm view lodash time --json | jq -r '.\\\"4.18.0\\\", .\\\"4.18.1\\\"'\", \"description\": \"Check lodash 4"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cp package-lock.json /tmp/lock-before.json && npm install lodash@4.18.1 --package-lock-only --ignore-scripts 2>&1 | tail -3 && echo \\\"--- package.json ---\\\" && cat package.json && echo \\\""
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"printf '{ \\\"name\\\": \\\"dep-fixture\\\", \\\"version\\\": \\\"1.0.0\\\", \\\"private\\\": true, \\\"dependencies\\\": { \\\"lodash\\\": \\\"4.18.1\\\" } }\\\\n' > package.json && sed -i 's/\\\"lodash\\\": \\\"\\\\^4.18.1\\\"/\\\""
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+ ],
+ "last_message": "## Dependency audit \u2014 `dep-fixture`\n\n**Ecosystem:** npm only (`package.json`; no lockfile was committed, so I generated one with `npm install --package-lock-only` to make `npm audit` runnable). No Python/Rust/Go/Ruby/PHP manifests.\n\n### Findings (before)\n\n| package | installed | severity | fixed in | direct/transitive | breaking? |\n|---|---|---|---|---|---|\n| lodash | 4.17.15 | **high** (6 advisories) | 4.18.1 | direct | no (minor bump) |\n\nAdvisories rolled up into that one entry:\n\n| advisory | title | severity | CVSS | vulnerable range |\n|---|---|---|---|---|\n| [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) | Code injection via `_.template` import key names | high | 8.1 | \u22644.17.23 |\n| [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw) | Prototype pollution | high | 7.4 | <4.17.19 |\n| [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) | Command injection | high | 7.2 | <4.17.21 |\n| [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh) | Prototype pollution via array path in `_.unset`/`_.omit` | moderate | 6.5 | \u22644.17.23 |\n| [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg) | Prototype pollution in `_.unset`/`_.omit` | moderate | 6.5 | \u22644.17.22 |\n| [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9) | ReDoS | moderate | 5.3 | <4.17.21 |\n\n### Fix tiers\n\n**Tier 1 (applied):** `lodash 4.17.15 \u2192 4.18.1`, a minor bump.\n- Why 4.18.1 and not something smaller: every 4.17.x release (through 4.17.23) is still inside the \u22644.17.23 ranges above, and `4.18.0` is deprecated on the registry (\"Bad release. Please use lodash@4.17.21 instead.\"). 4.18.1 is therefore the lowest clean version that clears all six advisories.\n- Kept your exact-pin style (`\"4.18.1\"`, not `^4.18.1`) and the original one-line `package.json` formatting; npm had rewritten both, so I reverted that.\n- Lockfile diff: only the `lodash` entry changed (version, `resolved`, `integrity`). No transitive deps \u2014 lodash has none.\n- Tests: `package.json` has no `scripts`, so there was no test suite to run. Nothing to verify beyond the audit.\n- No `npm audit fix --force` used.\n\n**Tier 2 (major bumps / overrides):** none needed \u2014 nothing here requires a major bump, so nothing to ask about.\n\n**Tier 3 (no fix available):** none.\n\n### Before / after\n\n| | critical | high | moderate | low | total |\n|---|---|---|---|---|---|\n| before | 0 | 1 | 0 | 0 | **1** |\n| after | 0 | 0 | 0 | 0 | **0** |\n\n### Working tree\n\n- `M package.json` \u2014 the one-line version change\n- `?? package-lock.json` \u2014 newly generated; worth committing so future audits and installs are reproducible\n\nNothing is committed. Say the word if you want me to commit these two files.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "audit-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 4 (min 1)"
+  },
+  {
+   "name": "bumped",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\"lodash\":\\\\s*\"\\\\^?4\\\\.(?:17\\\\.2[1-9]|1[89]\\\\.|[2-9]\\\\d\\\\.)' found in {source: file, path: package.json} (contains)"
+  },
+  {
+   "name": "lodash-listed",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'lodash' found in last_message (contains)"
+  },
+  {
+   "name": "no-force",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 2,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

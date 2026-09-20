@@ -62,6 +62,15 @@ LEAKED = stream([
     event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
     result("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run."),
 ])
+# Claude Code 2.1.278 ships agents-md as a built-in plugin (init line: path "builtin", source "agents-md@builtin"); not a leak
+BUILTIN = stream([
+    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.278", "plugins": [
+        {"name": "skillkeel-starter", "path": "/x/skillkeel-starter", "source": "skillkeel-starter@inline", "version": "0.1.8"}, {"name": "agents-md", "path": "builtin", "source": "agents-md@builtin"}]}),
+    event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
+    event_assistant(tool("Bash", command="git log -p --all | grep -E AKIA")),
+    event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
+    result("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run."),
+])
 ESCAPED = stream([
     json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272", "plugins": [{"name": "skillkeel-starter", "version": "0.1.6"}]}),
     event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
@@ -133,6 +142,9 @@ def main():
         check(rec4["passed"] is False, "a run with a foreign plugin loaded is not an isolated run and fails")
         check("extra plugins" in out4, f"record line names the leak: {out4}")
         check(rec.get("extra_plugins") == [] and rec.get("plugins") == [], "init line without plugins records empty lists")
+        rec5, _ = run_record(root, CASE + "-builtin", BUILTIN, 0, "2026-09-20")
+        check(rec5["extra_plugins"] == [], f"a builtin plugin (path builtin) is not a leak: {rec5.get('extra_plugins')}")
+        check(rec5["passed"] is True, "a run with only builtin plugins beside ours is isolated and passes")
 
         rec5, out5 = run_record(root, CASE + "-escaped", ESCAPED, 0, "2026-09-17")
         check([e["tool"] for e in rec5.get("escapes", [])] == ["Read", "Bash"], f"reads outside the fixture recorded per tool: {rec5.get('escapes')}")
@@ -157,7 +169,7 @@ def main():
         check(rows.get(CASE + "-noskill", {}).get("bucket") == "skill", f"no skill call -> skill bucket before the tool bucket: {rows.get(CASE + '-noskill')}")
         check(rows.get("native-case", {}).get("bucket") == "text", f"native regex failure -> text: {rows.get('native-case')}")
         table = subprocess.run([sys.executable, str(ROOT / "evals" / "cluster.py")], capture_output=True, text=True, env=env).stdout
-        check("5 failed of 7 cases" in table, table)
+        check("5 failed of 8 cases" in table, table)
         check(rows.get(CASE + "-leaked", {}).get("bucket") == "runner" and "caveman" in rows.get(CASE + "-leaked", {}).get("why", ""), f"foreign plugin -> runner bucket naming it: {rows.get(CASE + '-leaked')}")
         check(table.index("runner") < table.index("skill (") < table.index("text ("), "buckets print in mechanical order")
         check(rows.get(CASE + "-escaped", {}).get("bucket") == "runner" and "outside the fixture" in rows.get(CASE + "-escaped", {}).get("why", ""), f"escape -> runner bucket: {rows.get(CASE + '-escaped')}")

@@ -1,0 +1,90 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 25.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git remote -v; git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; git fetch origin 2>&1; echo ---; git log --oneline main..HEAD; echo ---; git diff --stat main...HEAD; echo ---; g"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -path ./.git -prune -o -type f -print; ls migrations\", \"description\": \"List repo files and migrations\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "No remote is configured, so I diffed against local `main` (3 commits, 3 files). No test files exist yet; `make test` is the repo's only test entry point.\n\n**Title:** `feat(orders): add optional note field to orders`\n\n```markdown\n## Summary\nOrders had no way to carry free-text context from the caller. This adds an optional `note` to `create_order`, backed by a new nullable `note` column on the `orders` table, and caps the note at 500 characters so unbounded text can't be stored.\n\n## Changes\n- `orders.py`: new `create_order(note=None)`; raises `ValueError(\"note too long\")` when the note exceeds 500 characters.\n- `migrations/0002_note.sql`: `ALTER TABLE orders ADD COLUMN note TEXT;` (nullable, no default, no backfill).\n- `README.md`: one-line mention that orders support notes.\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`): not run \u2014 there are currently no test files in the repo, so this passes vacuously. A test for the >500-char rejection and the `None` default would be worth adding before merge.\n- [ ] Apply `migrations/0002_note.sql` against a staging database and confirm existing rows read back with `note = NULL`.\n- [ ] Manual: call `create_order(note=\"x\" * 501)` and confirm `ValueError`; `create_order()` returns `{\"note\": None}`.\n\n## Risk / rollback\n**Schema change:** this PR adds a migration (`0002_note.sql`). The column is nullable `TEXT`, so it is additive and safe for existing rows, but the migration must be applied before deploying code that writes `note`. The 500-char cap is enforced only in Python, not in the schema.\n\nRollback: `git revert 178544f 7ba8b86 c6baf7e`, then drop the column (`ALTER TABLE orders DROP COLUMN note;`) if the migration was already applied.\n```",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

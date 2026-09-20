@@ -6,6 +6,7 @@ Hook unit tests (`bash tests/test-hooks.sh`, current checkout): 72 passed, 0 fai
 
 | Claude Code | Date | Native eval cases | Transcript cases | Trigger prompts | Cost (USD) | Notes |
 |---|---|---|---|---|---|---|
+| 2.1.278 | 2026-09-20 | 0/0 | 8/8 | n/a | 0.00 |  |
 | 2.1.276 | 2026-09-19 | 0/0 | 8/8 | n/a | 0.00 |  |
 | 2.1.276 | 2026-09-18 | 0/0 | 8/8 | 8/8 | 0.00 |  |
 | 2.1.274 | 2026-09-17 | 3/3 | 5/5 | n/a | 1.05 |  |

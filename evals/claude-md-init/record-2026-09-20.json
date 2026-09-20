@@ -1,0 +1,94 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 35.0,
+ "turns": 6,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && echo \\\"--- git ls-files\\\" && git ls-files && echo \\\"--- package.json\\\" && cat package.json 2>/dev/null; echo \\\"--- workflows\\\"; for f in .github/workflows/*.yml; do echo \\\"== $f"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"echo \\\"nvmrc: $(cat .nvmrc)\\\"; echo \\\"--- lock\\\"; cat pnpm-lock.yaml; echo \\\"--- src\\\"; ls src; cat src/index.ts; echo \\\"--- pnpm run\\\"; pnpm run 2>&1 | head -20; echo \\\"--- node_modules?"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > CLAUDE.md <<'EOF'\\n# CLAUDE.md\\n\\n## Project\\n`shop` \\u2014 a private Vite + TypeScript app. Node 20 (`.nvmrc`), package manager pnpm 9.0.0 (`packageManager` field in `package.json`"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "Wrote `CLAUDE.md` (38 lines).\n\n**What it captures**\n- Stack: Vite + TypeScript, Node 20, pnpm 9.0.0 \u2014 from `.nvmrc` and `package.json`.\n- Commands: `pnpm i --frozen-lockfile`, `pnpm dev`, `pnpm test:ci`, `pnpm lint`, `pnpm build`, plus an explicit note that there is no `test` script so `pnpm test` won't work \u2014 CI runs `pnpm test:ci`.\n- Layout: `src/` and the CI workflow.\n- Do-not list: hand-editing `pnpm-lock.yaml`, unfrozen installs, changing `packageManager`/`.nvmrc`.\n- Verification: `pnpm lint` and `pnpm test:ci`.\n\n**One caveat:** the skill asks that every listed command be executed or dry-run, but `pnpm` isn't on this machine's PATH and there's no `node_modules`, so I couldn't run `pnpm run` to list scripts. I sourced every command by reading `package.json` and `ci.yml` instead. If you want them exercised, install pnpm (`corepack enable`) and run `pnpm i --frozen-lockfile && pnpm lint && pnpm test:ci` \u2014 if any of those fail, tell me and I'll drop or fix the entry.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}

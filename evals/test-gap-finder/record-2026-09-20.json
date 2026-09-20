@@ -1,0 +1,82 @@
+{
+ "case": "test-gap-finder",
+ "date": "2026-09-20",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 30.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -type f -not -path './.git/*' | sort && echo '--- churn ---' && git log --since=90.days --format='' --name-only | sort | uniq -c | sort -rn && echo '--- wc ---' && wc -l $(find . -"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"for f in pkg/auth.py pkg/payments.py pkg/utils.py tests/test_utils.py; do echo \\\"=== $f\\\"; cat -n $f; done; echo '--- test refs ---'; grep -rn 'import\\\\|from' tests/; echo '--- runner ---"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+ ],
+ "last_message": "## Test gap report\n\n**Layout:** `pkg/` source, `tests/test_*.py` (pytest-style). No runner config and `pytest` isn't installed, so no coverage run \u2014 the numbers below are from grepping, not a coverage tool.\n\n| Module | Test files | Test count | 90-day churn | Lines | Critical path |\n|---|---|---|---|---|---|\n| `pkg/auth.py` | \u2014 | 0 | 4 commits | 10 | yes (auth) |\n| `pkg/payments.py` | \u2014 | 0 | 1 commit | 4 | yes (payments) |\n| `pkg/utils.py` | `tests/test_utils.py` | 1 | 1 commit | 2 | no |\n| `pkg/__init__.py` | \u2014 | \u2014 | 1 commit | 0 | empty, skip |\n\n**Ranking:** `auth.py` first (highest churn, auth), `payments.py` second (money, raises on bad input). `utils.py` is already covered and not on a critical path \u2014 not proposed. Only two modules qualify, so the \"top 5\" is a top 2.\n\n## Proposals\n\n### 1. `tests/test_auth.py` \u2014 `pkg/auth.py`\n\nSignatures: `hash_password(p, salt) -> str`, `verify(p, salt, h) -> bool`.\n\n- `test_hash_password_is_deterministic` \u2014 same `(p, salt)` twice returns identical 64-char hex digest.\n- `test_hash_password_salt_changes_digest` \u2014 `hash_password(\"pw\", \"a\") != hash_password(\"pw\", \"b\")`.\n- `test_hash_password_matches_sha256_of_salt_plus_password` \u2014 pin the layout: equals `hashlib.sha256(b\"saltpw\").hexdigest()` for `(\"pw\", \"salt\")`. Guards against silently reordering to `p + salt`, which would invalidate every stored hash.\n- `test_verify_round_trip` \u2014 `verify(\"pw\", \"s\", hash_password(\"pw\", \"s\")) is True`.\n- `test_verify_rejects_wrong_password_and_wrong_salt` \u2014 both `verify(\"nope\", \"s\", h)` and `verify(\"pw\", \"t\", h)` return `False`.\n- `test_hash_password_unicode_input` \u2014 boundary: non-ASCII `p`/`salt` doesn't raise (`.encode()` defaults to UTF-8).\n\n### 2. `tests/test_payments.py` \u2014 `pkg/payments.py`\n\nSignature: `charge(amount_cents, currency=\"EUR\") -> dict`.\n\n- `test_charge_returns_amount_and_default_currency` \u2014 `charge(1000) == {\"amount\": 1000, \"currency\": \"EUR\"}`.\n- `test_charge_respects_explicit_currency` \u2014 `charge(500, \"USD\")[\"currency\"] == \"USD\"`.\n- `test_charge_rejects_zero` \u2014 `charge(0)` raises `ValueError` matching `\"amount must be positive\"` (boundary of the `<= 0` check).\n- `test_charge_rejects_negative` \u2014 `charge(-1)` raises `ValueError`.\n- `test_charge_minimum_amount` \u2014 `charge(1)` succeeds (smallest valid value).\n\nNothing was written. Note that running these needs `pytest` installed (`pip install pytest`) and an empty `tests/__init__.py` or `pythonpath` config so `pkg` imports resolve. Say the word if you want me to write either file.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "auth-top",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'auth\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "concrete-cases",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "no-files-written",
+   "type": "tool_used",
+   "tool": "Write",
+   "weight": 2,
+   "passed": true,
+   "detail": "Write calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "payments",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'payments\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}
