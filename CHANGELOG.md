@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.8 (2026-09-20)
+
+- guard-bash: rule 3b, ORM-level database wipes. The framework drops every table itself, so no DROP appears in the command and rule 3 never saw it: `php artisan migrate:fresh`, `migrate:refresh`, `db:wipe`; `rails db:drop`, `db:reset`, `db:schema:load`; `prisma migrate reset`; `manage.py flush` and `sqlflush`; `sequelize db:drop` and `db:migrate:undo:all`; `knex migrate:rollback --all`; `alembic downgrade base`. Plain `migrate`, `db:migrate`, `prisma migrate dev` and single-step rollbacks pass. Found through the r/ClaudeCode thread where `migrate:fresh --seed --force --env=testing` resolved to the dev MariaDB and dropped every table (1wlawz8, 2026-09-20); the command passed guard-bash 0.1.7. 72 hook tests (was 64).
+- Skills and the other hooks unchanged.
+
 ## 0.1.7 (2026-09-19)
 
 - README: "This plugin stops it" is now "blocks the commands and writes listed below (a guard, not a sandbox; the tamper-cases corpus shows what it catches and what it does not)"; the Kit price line says "plus VAT where it applies, added at checkout".

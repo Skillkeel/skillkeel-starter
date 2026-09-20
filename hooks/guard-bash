@@ -22,6 +22,9 @@ printf '%s' "$c" | grep -Eq 'git +branch +-D ' && block "git branch -D"
 # 3. database / infra wipes
 printf '%s' "$c" | grep -Eiq '(drop +(database|table|schema)|truncate +table|flushall|flushdb)' && block "database wipe"
 printf '%s' "$c" | grep -Eq '(terraform +destroy|kubectl +delete +(ns|namespace)|docker +system +prune +-a|docker +volume +prune)' && block "infra destroy"
+# 3b. ORM wipes: the framework drops every table itself, so no DROP appears in the command (Laravel migrate:fresh
+# with --env=testing still hit the dev MariaDB, r/ClaudeCode 2026-09-20)
+printf '%s' "$c" | grep -Eq '(artisan +(migrate:fresh|migrate:refresh|db:wipe)|rails +db:(drop|reset|schema:load)|prisma +migrate +reset|manage\.py +(flush|sqlflush)|sequelize +db:(drop|migrate:undo:all)|knex +migrate:rollback +--all|alembic +downgrade +base)' && block "ORM database wipe"
 # 4. disk / system
 printf '%s' "$c" | grep -Eq '(^|[;&| ])(mkfs|dd +if=|shred|chmod +-R +777 +/|chown +-R +[^ ]+ +/( |$)|:\(\)\{ *:\|:& *\};:)' && block "disk/system destructive"
 # 6. git config keys that make git run a command (core.fsmonitor was the Claude Code sandbox escape, accomplish.ai
