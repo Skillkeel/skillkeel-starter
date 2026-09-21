@@ -2,7 +2,7 @@
 
 Guard hooks and repo skills for [Claude Code](https://claude.com/claude-code). Free, MIT.
 
-Current release v0.1.9 (2026-09-21). Works with Claude Code 2.1.278 (evals 8 of 8; every version tried is in [docs/compat.md](docs/compat.md)).
+Current release v0.1.10 (2026-09-21). Works with Claude Code 2.1.278 (evals 8 of 8; every version tried is in [docs/compat.md](docs/compat.md)).
 
 [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/skillkeel-skillkeel-starter)](https://www.claudepluginhub.com/plugins/skillkeel-skillkeel-starter?ref=badge)
 
@@ -58,7 +58,7 @@ Or clone the repo and start Claude Code with `claude --plugin-dir ./skillkeel-st
 To try it for one session without installing anything, load the release archive by URL (Claude Code fetches it at startup and forgets it when the session ends):
 
 ```
-claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.9.zip
+claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.10.zip
 ```
 
 The eight skills alone, without the three hooks, also install through `npx skills add skillkeel/skillkeel-starter -g -a claude-code`; that route copies `SKILL.md` folders and never a plugin's `hooks/hooks.json`, so guard-bash and secret-scan are not part of it.

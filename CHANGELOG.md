@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 (2026-09-21)
+
+- docs: the 0.1.9 ZIP carried a docs/compat.md that still said 72 hook tests next to a README that said 79 (the table is generated after the eval run, which ran after the tag). Regenerated table with the 2.1.278 row of 2026-09-21 (8 of 8) and the 79 count; README release line. No code change; hooks, skills and tests as in 0.1.9.
+
 ## 0.1.9 (2026-09-21)
 
 - secret-scan: a credential name with a prefix now counts. The generic pattern started with a word boundary right before `api_key`, `secret`, `password` or `token`, and an underscore is a word character, so `SUPABASE_SERVICE_TOKEN = "..."`, `NOTION_SECRET = "..."` and `CLIENT_PASSWORD = '...'` were written without a word (1 of 5 .mcp.json-shaped lines caught on 2026-09-21). The pattern now takes any `[A-Za-z0-9_]` prefix; `token_count = "..."` and `MAX_TOKENS_PER_REQUEST` still pass because the name has to end at the key word.
