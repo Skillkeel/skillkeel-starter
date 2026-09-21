@@ -2,6 +2,8 @@
 
 Guard hooks and repo skills for [Claude Code](https://claude.com/claude-code). Free, MIT.
 
+Current release v0.1.9 (2026-09-21). Works with Claude Code 2.1.278 (evals 8 of 8; every version tried is in [docs/compat.md](docs/compat.md)).
+
 [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/skillkeel-skillkeel-starter)](https://www.claudepluginhub.com/plugins/skillkeel-skillkeel-starter?ref=badge)
 
 Claude Code is fast. It will also run `rm -rf` in the wrong directory, force-push over a teammate's branch, or write an API key straight into `config.py` if nothing stops it. This plugin blocks the commands and writes listed below (it is a guard, not a sandbox; the tamper-cases corpus shows what it catches and what it does not), and adds eight small skills for the boring parts of repo work.
@@ -38,11 +40,13 @@ The hooks have 79 unit tests in `tests/test-hooks.sh`. Each skill has a folder u
 
 [docs/compat.md](docs/compat.md) lists every Claude Code version the evals ran on, with the pass counts, generated from the results in this repo. Since 2026-09-18 the runner also has a trigger mode (`bash evals/run.sh --trigger`): the same eight cases with a request that never names the skill, such as "Commit the staged changes.", so the table shows whether the descriptions fire on a plain request and not only whether the invocation path works (first run: 8/8 on 2.1.276). Since 0.1.3 the eval runner also writes a run record per case (`evals/<skill>/record-<date>.json`: exit code, every tool call, skill invocations, grader verdicts that need no model) and `evals/cluster.py` groups failed cases by their first mechanical mismatch, so a runner or grader fault shows up as one bucket instead of eight transcript reads. The skill texts call four external CLIs (gitleaks, trufflehog, pip-audit, gh); `tests/test-cli-verbs.py` checks every subcommand and flag they name against `tests/cli-verbs.json`, a snapshot read from the latest release of each CLI, so a renamed subcommand fails the test before it fails for you.
 
-External test set: u/Far_Business4773 runs 52 evasion cases against a guard of this shape in [lumis-skills/examples/tamper_cases.py](https://github.com/momonanq/lumis-skills/blob/main/examples/tamper_cases.py) (MIT). Cases 41 to 52 came out of the r/ClaudeCode thread with this project; case 42 (`find -exec rm -rf`) is the one fixed in 0.1.1. That file targets a guard with protected paths, which guard-bash does not have, so it is a reference, not part of this test suite. The shared corpus [skillkeel/tamper-cases](https://github.com/skillkeel/tamper-cases) carries those 52 cases plus the destructive and git-config families from this suite (105 cases) with a runner for any hook; its RESULTS.md has the numbers for guard-bash 0.1.0 and 0.1.5.
+External test set: u/Far_Business4773 runs 52 evasion cases against a guard of this shape in [lumis-skills/examples/tamper_cases.py](https://github.com/momonanq/lumis-skills/blob/main/examples/tamper_cases.py) (MIT). Cases 41 to 52 came out of the r/ClaudeCode thread with this project; case 42 (`find -exec rm -rf`) is the one fixed in 0.1.1. That file targets a guard with protected paths, which guard-bash does not have, so it is a reference, not part of this test suite. The shared corpus [skillkeel/tamper-cases](https://github.com/skillkeel/tamper-cases) carries those 52 cases plus the destructive and git-config families from this suite (105 cases) with a runner for any hook; its RESULTS.md has one row per guard-bash version from 0.1.0 to 0.1.9.
 
 This plugin does not overlap with the `superpowers` plugin. That one covers process (planning, TDD, debugging). This one covers guardrails and repo chores.
 
 ## Install
+
+Recommended, inside Claude Code:
 
 ```
 /plugin marketplace add skillkeel/skillkeel-starter
