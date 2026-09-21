@@ -1,0 +1,82 @@
+{
+ "case": "test-gap-finder",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 29.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"find . -type f -not -path './.git/*' | sort && echo --- && cat pyproject.toml setup.cfg pytest.ini tox.ini 2>/dev/null; echo --- && wc -l $(find . -name '*.py' -not -path './.git/*') && e"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"for f in pkg/auth.py pkg/payments.py pkg/utils.py tests/test_utils.py; do echo \\\"=== $f\\\"; cat \\\"$f\\\"; done; echo; echo \\\"=== runner check\\\"; (command -v pytest && timeout 60 python -m py"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+ ],
+ "last_message": "Test layout: `tests/test_*.py` (pytest by convention; no runner config present, and `pytest`/`pytest-cov` aren't installed here, so no coverage numbers \u2014 the map below is from grep, not a coverage tool).\n\n## Module \u2192 test map\n\n| Module | Lines | Commits (90d) | Test files | Tests | Critical path |\n|---|---|---|---|---|---|\n| `pkg/auth.py` | 10 | 4 | \u2014 | 0 | yes (auth) |\n| `pkg/payments.py` | 4 | 1 | \u2014 | 0 | yes (payments) |\n| `pkg/utils.py` | 2 | 1 | `tests/test_utils.py` | 1 | no |\n| `pkg/__init__.py` | 0 | 1 | \u2014 | \u2014 | empty, skip |\n\nRanking: **auth.py** first (highest churn, auth path, two functions), **payments.py** second (data/money path, untested). `utils.py` is already covered and trivial \u2014 not proposed. Only two modules qualify, so there are two proposals rather than five.\n\n## Proposals (not written)\n\n### 1. `tests/test_auth.py` \u2014 `pkg/auth.py`\n\n`hash_password(p, salt)` \u2192 `sha256(salt + p).hexdigest()`; `verify(p, salt, h)` \u2192 equality against that.\n\n- `test_hash_password_is_deterministic` \u2014 same `(p, salt)` twice yields identical 64-char hex; matches `hashlib.sha256((salt+p).encode()).hexdigest()` computed inline.\n- `test_hash_password_salt_changes_output` \u2014 `hash_password(\"pw\", \"a\") != hash_password(\"pw\", \"b\")`.\n- `test_hash_password_is_order_sensitive` \u2014 since concatenation is `salt + p`, `hash_password(\"ab\", \"c\") != hash_password(\"c\", \"ab\")` (guards against a refactor swapping the order and silently invalidating stored hashes).\n- `test_verify_round_trip_and_rejects_wrong_password` \u2014 `verify(\"pw\", \"s\", hash_password(\"pw\", \"s\"))` is `True`; `verify(\"px\", \"s\", same_hash)` and `verify(\"pw\", \"t\", same_hash)` are `False`.\n- `test_hash_password_rejects_non_string` (failure) \u2014 `hash_password(None, \"s\")` raises `TypeError` (`salt + p` fails); documents the current contract.\n\n### 2. `tests/test_payments.py` \u2014 `pkg/payments.py`\n\n`charge(amount_cents, currency=\"EUR\")` \u2192 raises `ValueError` if `amount_cents <= 0`, else returns `{\"amount\", \"currency\"}`.\n\n- `test_charge_returns_amount_and_default_currency` \u2014 `charge(1000) == {\"amount\": 1000, \"currency\": \"EUR\"}`.\n- `test_charge_respects_explicit_currency` \u2014 `charge(500, currency=\"USD\")[\"currency\"] == \"USD\"`.\n- `test_charge_boundary_one_cent_succeeds` \u2014 `charge(1)[\"amount\"] == 1`.\n- `test_charge_rejects_zero_and_negative` \u2014 `charge(0)` and `charge(-1)` both raise `ValueError` with message `\"amount must be positive\"` (`pytest.raises(..., match=...)`).\n\nNot proposed: `pkg/utils.py` (already tested), `pkg/__init__.py` (empty).\n\nI have not written any files. Say the word if you want either of these created and run.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "auth-top",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'auth\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "concrete-cases",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "no-files-written",
+   "type": "tool_used",
+   "tool": "Write",
+   "weight": 2,
+   "passed": true,
+   "detail": "Write calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "payments",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'payments\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

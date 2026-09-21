@@ -1,0 +1,94 @@
+{
+ "case": "dependency-audit",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 48.0,
+ "turns": 8,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 5
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && cat package.json && ls pyproject.toml requirements*.txt Cargo.toml go.mod Gemfile composer.json 2>/dev/null; command -v npm pnpm yarn; node --version; npm --version\", \"descripti"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm install --package-lock-only --ignore-scripts 2>&1 | tail -5; echo \\\"---\\\"; npm audit --json 2>/dev/null | tee /tmp/audit-before.json | head -c 4000\", \"description\": \"Generate lockfile"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"npm view lodash version dist-tags.latest time.4.18.1 2>&1; echo \\\"--- test script:\\\"; node -e 'console.log(require(\\\"./package.json\\\").scripts ?? \\\"(none)\\\")'\", \"description\": \"Check loda"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cp package-lock.json /tmp/lock-before.json && npm install lodash@4.18.1 --package-lock-only --ignore-scripts --save-exact 2>&1 | tail -3; echo \\\"--- package.json:\\\"; cat package.json; ech"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"printf '{ \\\"name\\\": \\\"dep-fixture\\\", \\\"version\\\": \\\"1.0.0\\\", \\\"private\\\": true, \\\"dependencies\\\": { \\\"lodash\\\": \\\"4.18.1\\\" } }\\\\n' > package.json && git status --short && git diff package"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:dependency-audit\"}"
+ ],
+ "last_message": "## Dependency audit \u2014 `dep-fixture`\n\n**Ecosystem:** npm only (`package.json`; no lockfile or `node_modules` present). Tool: `npm audit` 11.16.0. Since `npm audit` needs a lockfile, I generated one with `npm install --package-lock-only --ignore-scripts` (nothing installed, no scripts run).\n\n### Findings (before)\n\n| package | installed | severity | fixed in | direct/transitive | breaking? |\n|---|---|---|---|---|---|\n| lodash | 4.17.15 | **high** (6 advisories, max CVSS 8.1) | 4.18.1 | direct | no \u2014 minor bump (`isSemVerMajor: false`) |\n\nAdvisories on 4.17.15:\n- [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) high 8.1 \u2014 Code injection via `_.template` (\u22644.17.23)\n- [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw) high 7.4 \u2014 Prototype pollution (<4.17.19)\n- [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) high 7.2 \u2014 Command injection (<4.17.21)\n- [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh) moderate 6.5 \u2014 Prototype pollution in `_.unset`/`_.omit` (\u22644.17.23)\n- [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg) moderate 6.5 \u2014 Prototype pollution in `_.unset`/`_.omit` (\u22644.17.22)\n- [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9) moderate 5.3 \u2014 ReDoS (<4.17.21)\n\n### Fixes\n\n**Tier 1 (applied \u2014 minor bump, direct dep):** `lodash 4.17.15 \u2192 4.18.1` (registry `latest`, verified). Pinned exact to match the existing style.\n- `package.json`: `\"lodash\": \"4.17.15\"` \u2192 `\"4.18.1\"`\n- `package-lock.json` (new file): lodash version/resolved/integrity updated; no other entries changed.\n- Tests: the project has no `test` script and no test files, so there was nothing to run \u2014 treat that as unverified, not passing.\n\n**Tier 2 (ask first):** none \u2014 no major bumps or overrides needed.\n**Tier 3 (no fix available):** none.\n\n### Before / after\n\n| | info | low | moderate | high | critical | total |\n|---|---|---|---|---|---|---|\n| before | 0 | 0 | 0 | 1 | 0 | **1** |\n| after | 0 | 0 | 0 | 0 | 0 | **0** |\n\n`npm audit fix --force` was not used. Working tree now has `M package.json` and a new untracked `package-lock.json` \u2014 nothing committed. If you'd rather keep this proposal-only, `git checkout package.json && rm package-lock.json` reverts it; otherwise I'd suggest committing the lockfile alongside the bump so future audits don't need to regenerate it.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "audit-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 2 (min 1)"
+  },
+  {
+   "name": "bumped",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\"lodash\":\\\\s*\"\\\\^?4\\\\.(?:17\\\\.2[1-9]|1[89]\\\\.|[2-9]\\\\d\\\\.)' found in {source: file, path: package.json} (contains)"
+  },
+  {
+   "name": "lodash-listed",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'lodash' found in last_message (contains)"
+  },
+  {
+   "name": "no-force",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 2,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

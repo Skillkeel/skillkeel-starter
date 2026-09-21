@@ -1,0 +1,102 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 45.0,
+ "turns": 8,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 5
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && echo \\\"--- pkg ---\\\" && cat package.json 2>/dev/null && echo \\\"--- workflows ---\\\" && ls .github/workflows 2>/dev/null && cat .github/workflows/*.yml 2>/dev/null; echo \\\"--- mis"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls src && cat pnpm-lock.yaml && echo \\\"--- pnpm run ---\\\" && (pnpm run 2>&1 | head -20); echo \\\"--- versions ---\\\"; pnpm --version 2>&1; node --version 2>&1; ls node_modules 2>&1 | head -"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat src/index.ts; echo \\\"--- corepack ---\\\"; timeout 20 corepack pnpm run 2>&1 | head -15; echo \\\"exit=$?\\\"\", \"description\": \"Read source file and try listing scripts via corepack pnpm\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"node -e 'const p=require(\\\"./package.json\\\");console.log(p.packageManager);for(const [k,v] of Object.entries(p.scripts))console.log(k,\\\"=>\\\",v)' && ls vite.config.* vitest.config.* eslint"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > CLAUDE.md <<'EOF'\\n# CLAUDE.md\\n\\n## Project\\n\\n`shop` \\u2014 a private Vite + TypeScript app. Node 20 (`.nvmrc`), pnpm 9.0.0 (`packageManager` in `package.json`).\\nTests run on Vit"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "Wrote `CLAUDE.md` (49 lines) at `<workdir>/CLAUDE.md`.\n\nWhat it's based on:\n- `package.json` scripts: `dev`, `build`, `test:ci` (`vitest run`), `lint` (`eslint .`), `packageManager: pnpm@9.0.0`\n- `.github/workflows/ci.yml`: `pnpm i --frozen-lockfile` \u2192 `pnpm test:ci`\n- `.nvmrc`: Node 20; `pnpm-lock.yaml` v9 flagged as do-not-hand-edit\n- Git history: single `chore: init` commit \u2192 Conventional Commits noted\n\nOne caveat: `pnpm` (and `corepack`) aren't installed here and `node_modules` is absent, so I couldn't execute the scripts. I verified them by reading the manifest with `node -e` rather than running `pnpm run`. The single-test example (`pnpm test:ci src/index.test.ts`) uses Vitest's standard file-filter syntax but there's no test file in the repo yet, so it's illustrative. If you want it trimmed further or want a section removed, tell me which.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}

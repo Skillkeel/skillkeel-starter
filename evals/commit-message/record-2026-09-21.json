@@ -1,0 +1,82 @@
+{
+ "case": "commit-message",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 22.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:commit-message\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git status --porcelain && git diff --cached --stat && git diff --cached\", \"description\": \"Show staged changes and diff\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git commit -m \\\"$(cat <<'MSG'\\nfeat(calc): add clamp function\\nMSG\\n)\\\" && git log -1 --stat\", \"description\": \"Commit staged changes and show result\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:commit-message\"}"
+ ],
+ "last_message": "Committed as `dd76ab9`:\n\n```\nfeat(calc): add clamp function\n\n calc.py      | 3 +++\n test_calc.py | 4 ++++\n```\n\nNotes:\n- Classified as `feat` (new `clamp` function + its test), scope `calc`, subject 30 chars, no body since the diff is self-explanatory.\n- Per the skill's rules, I omitted the `Co-Authored-By` attribution line; say the word if you want it added via `git commit --amend`.\n- I did not run the tests, so the message makes no claim about them.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "committed",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 1 (min 1)"
+  },
+  {
+   "name": "no-trailer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Co-Authored-By:|Generated with \\\\[' not found in trace (not_contains)"
+  },
+  {
+   "name": "quality",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "subject-format",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\\\([\\\\w./-]+\\\\))?: [^\\\\n\"]{1,50}' found in trace (contains)"
+  }
+ ],
+ "passed": true
+}

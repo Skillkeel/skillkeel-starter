@@ -1,0 +1,90 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 27.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git remote -v; git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; git fetch origin 2>&1 | tail -2; echo \\\"--- log\\\"; git log --oneline main..HEAD; echo \\\"--- stat\\\"; git diff --st"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat Makefile; echo \\\"--- migrations\\\"; ls migrations; echo \\\"--- commits\\\"; git log main..HEAD --format='%h %s%n%b'\", \"description\": \"Read Makefile, migrations list, and full commit messa"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "**Title:** `feat(orders): add optional note field to orders`\n\n```markdown\n## Summary\nOrders currently have no way to carry free-text context from the caller. This adds an optional `note` to orders: a new nullable `note TEXT` column on the `orders` table and a `create_order(note=None)` entry point that accepts it. Notes are capped at 500 characters \u2014 anything longer raises `ValueError(\"note too long\")` rather than being silently truncated.\n\n## Changes\n- **Migration** `migrations/0002_note.sql`: `ALTER TABLE orders ADD COLUMN note TEXT` (nullable, no default, no backfill).\n- **`orders.py`**: new `create_order(note=None)` that validates length (\u2264 500 chars) and returns the order dict with the note.\n- **`README.md`**: one-line mention that orders support notes.\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`): not run in this session. Note: the repo currently has no test files, so this will collect nothing until tests for `create_order` are added \u2014 suggested cases: `note=None`, a 500-char note (accepted), a 501-char note (raises `ValueError`).\n- [ ] Apply `migrations/0002_note.sql` against a staging DB and confirm `orders.note` exists and existing rows read back with `note = NULL`.\n\n## Risk / rollback\n- **Schema change:** adds a column to `orders`. Additive and nullable, so existing reads/writes are unaffected, but it is a migration and must be applied before the new code path is exercised in production. `ALTER TABLE` on a large `orders` table may lock briefly depending on the database.\n- The 500-char cap is enforced only in `create_order`, not at the DB level (`TEXT` is unbounded); anything writing to the column outside this function bypasses the limit.\n- **Rollback:** `git revert ff5cb54 da64647 d8d0c78`, then drop the column (`ALTER TABLE orders DROP COLUMN note`) if the migration was already applied. Dropping is safe as long as no rows have notes worth keeping.\n```\n\nNotes: the branch has no upstream and there is no `origin` remote, so I diffed against local `main`. Attribution footer omitted per the skill's rules.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

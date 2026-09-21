@@ -1,0 +1,86 @@
+{
+ "case": "readme-refresh",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 34.0,
+ "turns": 6,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la && echo ---README--- && cat -n README.md && echo ---PKG--- && cat package.json 2>/dev/null; ls docs 2>&1; ls Makefile pyproject.toml Cargo.toml .nvmrc .python-version Dockerfile 2>"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat server.js && ls LICENSE* 2>&1; node --version\", \"description\": \"Show server.js, check for LICENSE file and node\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"python3 - <<'EOF'\\np='README.md'\\ns=open(p).read()\\ns=s.replace(\\\"npm run start\\\",\\\"npm run dev\\\")\\ns=s.replace(\\\"See [API docs](docs/api.md).\\\",\\\"<!-- TODO: docs/api.md does not exist ye"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:readme-refresh\"}"
+ ],
+ "last_message": "Done. Changes to `README.md`:\n\n- **`npm run start` \u2192 `npm run dev`** \u2014 `package.json` only defines `dev` and `test` scripts.\n- **Dead `docs/api.md` link** \u2014 replaced with a `<!-- TODO -->` marker; the `## Docs` heading is kept so you can fill it in or drop the section.\n- **Added a minimal `## Test` section** with `npm test` (the `test` script exists: `node --test`).\n\nNot changed, but worth noting:\n- **`## License: MIT`** \u2014 there's no `LICENSE` file in the repo. I left the claim as-is since I can't verify it; add a `LICENSE` file if MIT is intended.\n- I skipped an Install section: `package.json` has no dependencies, so `npm install` would be a no-op.\n\nAll other prose is untouched. Nothing has been committed.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "deadlink-handled",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '(?s)\\\\A(?:(?!\\\\]\\\\(docs/api\\\\.md\\\\)).)*\\\\Z|TODO: verify(?:[^\\\\n]*\\\\n){1,3}[^\\\\n]*\\\\]\\\\(docs/api\\\\.md\\\\)|\\\\]\\\\(docs/api\\\\.md\\\\)[^\\\\n]*TODO: verify' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "dev-fixed",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'npm run dev' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "prose-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'A tiny service\\\\.[\\\\s\\\\S]*## License[\\\\s\\\\S]*MIT' found in {source: file, path: README.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "start-gone",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm run start' not found in {source: file, path: README.md} (not_contains)"
+  }
+ ],
+ "passed": true
+}

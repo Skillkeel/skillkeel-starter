@@ -1,0 +1,90 @@
+{
+ "case": "changelog",
+ "date": "2026-09-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.278",
+ "exit": 0,
+ "seconds": 20.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:changelog\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git describe --tags --abbrev=0 && echo --- && git log --no-merges --format='%h %s' $(git describe --tags --abbrev=0)..HEAD && echo --- && ls && echo --- && cat CHANGELOG.md 2>/dev/null ||"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat > CHANGELOG.md <<'EOF'\\n# Changelog\\n\\nAll notable changes to this project will be documented in this file.\\n\\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:changelog\"}"
+ ],
+ "last_message": "Created `CHANGELOG.md` (none existed) with entries for `v0.1.0..HEAD`:\n\n- **Added**: `feat!: drop Node 16 support` \u2192 first, with **BREAKING:** prefix; `/health` endpoint; CSV export (#12)\n- **Fixed**: empty rows in import\n- Omitted `chore: bump eslint` (not user-visible)\n\nOne assumption to flag: I wrote \"Node 18 or later is now required\" for the breaking change, but the commit only says Node 16 was dropped \u2014 if the new minimum is different, adjust that line. The file is uncommitted; no version was cut or tagged.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "breaking-first",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '### Added\\\\s*\\\\n- \\\\*\\\\*BREAKING' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "chore-omitted",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'eslint' not found in {source: file, path: CHANGELOG.md} (not_contains)"
+  },
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CHANGELOG.md exists (want present)"
+  },
+  {
+   "name": "issue-ref-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '#12' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "unreleased",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '## \\\\[Unreleased\\\\]' found in {source: file, path: CHANGELOG.md} (contains)"
+  }
+ ],
+ "passed": true
+}
