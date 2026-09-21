@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.9 (2026-09-21)
 
+- secret-scan: a credential name with a prefix now counts. The generic pattern started with a word boundary right before `api_key`, `secret`, `password` or `token`, and an underscore is a word character, so `SUPABASE_SERVICE_TOKEN = "..."`, `NOTION_SECRET = "..."` and `CLIENT_PASSWORD = '...'` were written without a word (1 of 5 .mcp.json-shaped lines caught on 2026-09-21). The pattern now takes any `[A-Za-z0-9_]` prefix; `token_count = "..."` and `MAX_TOKENS_PER_REQUEST` still pass because the name has to end at the key word.
+- secret-scan: new pattern for a connection URL with the password inline, `scheme://user:pass@host` (`postgres://app:S3cretPassw0rd9@db.internal:5432/app`). A password without a digit is read as a placeholder, so `postgres://user:password@localhost` in an `.env.example` passes. 79 hook tests (was 72). Found while checking a claim for an X reply about hardcoded secrets in public MCP configs; no user report.
 - evals: Claude Code 2.1.278 ships agents-md as a built-in plugin (init line path "builtin"); `evals/record.py` no longer counts built-in plugins as a leak in the isolation check, so a run with only built-ins beside this plugin passes. 32 record checks. Transcript run on 2.1.278: all cases pass (docs/compat.md).
+- guard-bash, session-start and the skills unchanged.
 
 ## 0.1.8 (2026-09-20)
 

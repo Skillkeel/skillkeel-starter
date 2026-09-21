@@ -16,7 +16,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 | Hook | What it does |
 |---|---|
 | `guard-bash` | Blocks destructive shell commands before they run: `rm -rf /`, `git push --force` without `--force-with-lease`, `git reset --hard`, `git clean -f`, `DROP DATABASE`, ORM wipes since 0.1.8 (`artisan migrate:fresh`, `rails db:reset`, `prisma migrate reset`, `manage.py flush`), `terraform destroy`, `curl \| bash`, `dd` and `mkfs`, and since 0.1.4 git settings that run commands (`core.fsmonitor`, hooks paths, shell aliases) plus writes into `.git/`. Claude sees the reason and asks you instead. |
-| `secret-scan` | Blocks a file write that contains an AWS, OpenAI, Anthropic, GitHub or Slack key, a private key, a JWT, or a hard-coded password. |
+| `secret-scan` | Blocks a file write that contains an AWS, OpenAI, Anthropic, GitHub or Slack key, a private key, a JWT, a hard-coded password or token under any name (`CLIENT_PASSWORD`, `SUPABASE_SERVICE_TOKEN`), or a connection URL with the password inline. |
 | `session-start` | Gives Claude two lines of context at session start: the current git state and the list of skills. Nothing is printed to you; ask Claude what Skillkeel says and it answers from that brief. |
 
 ## Skills
@@ -34,7 +34,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 
 ## How it is tested
 
-The hooks have 72 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. The evals are rerun on every Claude Code release; the pass counts per version are in [docs/compat.md](docs/compat.md), and the run records and transcripts sit next to each case. You can read them before you install anything.
+The hooks have 79 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. The evals are rerun on every Claude Code release; the pass counts per version are in [docs/compat.md](docs/compat.md), and the run records and transcripts sit next to each case. You can read them before you install anything.
 
 [docs/compat.md](docs/compat.md) lists every Claude Code version the evals ran on, with the pass counts, generated from the results in this repo. Since 2026-09-18 the runner also has a trigger mode (`bash evals/run.sh --trigger`): the same eight cases with a request that never names the skill, such as "Commit the staged changes.", so the table shows whether the descriptions fire on a plain request and not only whether the invocation path works (first run: 8/8 on 2.1.276). Since 0.1.3 the eval runner also writes a run record per case (`evals/<skill>/record-<date>.json`: exit code, every tool call, skill invocations, grader verdicts that need no model) and `evals/cluster.py` groups failed cases by their first mechanical mismatch, so a runner or grader fault shows up as one bucket instead of eight transcript reads. The skill texts call four external CLIs (gitleaks, trufflehog, pip-audit, gh); `tests/test-cli-verbs.py` checks every subcommand and flag they name against `tests/cli-verbs.json`, a snapshot read from the latest release of each CLI, so a renamed subcommand fails the test before it fails for you.
 
@@ -54,7 +54,7 @@ Or clone the repo and start Claude Code with `claude --plugin-dir ./skillkeel-st
 To try it for one session without installing anything, load the release archive by URL (Claude Code fetches it at startup and forgets it when the session ends):
 
 ```
-claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.8.zip
+claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.9.zip
 ```
 
 The eight skills alone, without the three hooks, also install through `npx skills add skillkeel/skillkeel-starter -g -a claude-code`; that route copies `SKILL.md` folders and never a plugin's `hooks/hooks.json`, so guard-bash and secret-scan are not part of it.
@@ -83,7 +83,7 @@ SKILLKEEL_ALLOW_SECRETS=1 claude     # secret-scan off
 ## Run the tests
 
 ```
-bash tests/test-hooks.sh            # 72 hook cases
+bash tests/test-hooks.sh            # 79 hook cases
 python3 tests/test-cli-verbs.py     # skill texts vs the CLI snapshot
 python3 tests/test-evals-record.py  # eval record and cluster tools
 ```

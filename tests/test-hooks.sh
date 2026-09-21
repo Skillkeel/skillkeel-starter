@@ -31,9 +31,13 @@ t 0 guard-bash "$(B 'git status')"; t 0 guard-bash "$(B 'npm test')"; t 0 guard-
 t 2 secret-scan "$(W 'src/config.py' 'AWS_KEY = "AKIAIOSFODNN7EXAMPLE"')"; t 2 secret-scan "$(W 'app.js' 'const key = "sk-proj-abcdefghijklmnopqrstuvwxyz123456"')"
 t 2 secret-scan "$(W 'id_rsa' '-----BEGIN OPENSSH PRIVATE KEY-----')"; t 2 secret-scan "$(W '.env' 'GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz1234567890')"
 t 2 secret-scan "$(W 'settings.py' "PASSWORD = 'Sup3rS3cretPassw0rdValue!'")"
+# secret-scan: prefixed names and URL passwords (0.1.9; five .mcp.json-shaped lines on 2026-09-21 passed 1 of 5 because the leading \b sat after an underscore)
+t 2 secret-scan "$(W '.mcp.json' '"SUPABASE_SERVICE_TOKEN": "sbp_0123456789abcdefghij"')"; t 2 secret-scan "$(W 'config.ts' 'const NOTION_SECRET = "ntn_abcdefghijklmnop123"')"
+t 2 secret-scan "$(W 'settings.py' "CLIENT_PASSWORD = 'Sup3rS3cretPassw0rd!'")"; t 2 secret-scan "$(W '.env' 'DATABASE_URL=postgres://app:S3cretPassw0rd9@db.internal:5432/app')"
 # secret-scan: allow
 t 0 secret-scan "$(W '.env.example' 'API_KEY=your-key-here')"; t 0 secret-scan "$(W 'src/main.py' 'password = os.environ["PASSWORD"]')"; t 0 secret-scan "$(W 'README.md' 'AKIAIOSFODNN7EXAMPLE is an example key')"
 t 0 secret-scan "$(W 'test.py' 'token = get_token()')"; t 0 secret-scan "$(W 'a.py' 'x = 1')"
+t 0 secret-scan "$(W '.env.example' 'DATABASE_URL=postgres://user:password@localhost:5432/app')"; t 0 secret-scan "$(W 'a.py' 'token_count = "abcdefghijklmnop"')"; t 0 secret-scan "$(W 'b.py' 'MAX_TOKENS_PER_REQUEST = "128000"')"
 # session-start: valid JSON with additionalContext
 out=$(printf '{}' | bash hooks/session-start); printf '%s' "$out" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "additionalContext" in d["hookSpecificOutput"]' && pass=$((pass+1)) || { fail=$((fail+1)); echo "FAIL session-start json"; }
 echo "hooks: $pass passed, $fail failed"; [ "$fail" = 0 ]

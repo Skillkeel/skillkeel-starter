@@ -21,7 +21,10 @@ PATTERNS = [
     ("Slack token", r"xox[abpr]-[A-Za-z0-9-]{10,}"),
     ("private key", r"-----BEGIN (?:RSA |EC |OPENSSH |DSA |)PRIVATE KEY-----"),
     ("JWT", r"eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}"),
-    ("hardcoded secret", r"(?i)\b(?:api[_-]?key|secret|password|passwd|token)\b[\"']?\s*[:=]\s*[\"'][A-Za-z0-9_\-/+=!@#$%^&*.]{12,}[\"']"),
+    # 0.1.9: a prefix like SUPABASE_SERVICE_ or CLIENT_ counts (the old leading \b sat after an underscore and let it pass)
+    ("hardcoded secret", r"(?i)\b[A-Za-z0-9_]*(?:api[_-]?key|secret|password|passwd|token)\b[\"']?\s*[:=]\s*[\"'][A-Za-z0-9_\-/+=!@#$%^&*.]{12,}[\"']"),
+    # 0.1.9: a connection URL with the password inline (scheme://user:pass@host); a password without a digit reads as a placeholder
+    ("password in URL", r"[a-z][a-z0-9+.-]*://[^\s/:@\"']+:(?=[^\s@\"']*\d)[^\s@\"']{8,}@[^\s\"']+"),
 ]
 hits = []
 for i, line in enumerate(content.splitlines(), 1):
