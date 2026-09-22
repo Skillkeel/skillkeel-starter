@@ -94,4 +94,4 @@ python3 tests/test-evals-record.py  # eval record and cluster tools
 
 ## Paid version
 
-Skillkeel Kit (€49 plus VAT where it applies, added at checkout) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
+Skillkeel Kit (the Gumroad page shows the price and the total for your country) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
