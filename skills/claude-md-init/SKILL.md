@@ -26,5 +26,6 @@ A good CLAUDE.md is short, true, and command-centric. Aim for 40 to 80 lines.
 - Do not include secrets, internal hostnames, or personal names.
 - Keep under 100 lines; longer instructions go in `docs/` and are linked.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals claude-md-init` from the plugin root runs this case and grades it; records and transcripts sit in `evals/claude-md-init/`.
 `evals/claude-md-init/`: fixture: Node monorepo with `pnpm` scripts + GitHub Actions running `pnpm test:ci`; expected: CLAUDE.md lists `pnpm test:ci` (not `npm test`), notes lockfile as do-not-edit, ≤ 100 lines.

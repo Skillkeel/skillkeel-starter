@@ -16,10 +16,12 @@ description: Use when the user asks whether secrets were committed, before open-
    3. Purge history only if the repo is/will be public or shared: `git filter-repo --path <file> --invert-paths` or `--replace-text`, then force-push with `--force-with-lease` and tell collaborators to re-clone. Do not run this without explicit approval.
    4. Add prevention: `.gitignore` entries, pre-commit hook (`gitleaks git --pre-commit --staged .`; `protect --staged` on gitleaks older than 8.19), and this plugin's `secret-scan` hook.
 6. Print the findings table and the checklist. Never print full secret values; mask to first 4 + last 2 chars. That includes notes: when a value matches a known placeholder (the AWS docs example key, a vendor's sample token), say so by name and keep the masked form, never the full string.
+7. Before sending the final message, re-read the whole reply (summary, table, notes, checklist) and mask every key-shaped string that is still in full: first 4 + last 2 chars, placeholders and documentation examples included. Send only after this pass finds nothing.
 
 ## Rules
 - Never rewrite history or force-push in this skill; propose only.
 - Never paste unmasked secrets into the transcript.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals secret-audit` from the plugin root runs this case and grades it; records and transcripts sit in `evals/secret-audit/`.
 `evals/secret-audit/`: fixture repo where a `.env` with a fake AWS key was committed then deleted two commits later; expected: finding reported as "only in history" with the introducing sha, value masked, rotate-first plan, no history rewrite executed.

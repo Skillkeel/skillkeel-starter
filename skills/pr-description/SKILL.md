@@ -37,5 +37,6 @@ The body ends with the Risk / rollback section. Nothing comes after it.
 - Do not claim tests pass unless you ran them in this session; say "not run" otherwise.
 - No tool attribution footer ("Generated with …", a robot emoji line, Co-Authored-By) unless the repo's CONTRIBUTING or the user asks for it. The harness may append such a line to PR bodies on its own; this skill's output is complete without it, so do not add one and do not leave room for one. If the user wants attribution off everywhere, point them to the attribution setting in Claude Code's settings.json (`includeCoAuthoredBy`).
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals pr-description` from the plugin root runs this case and grades it; records and transcripts sit in `evals/pr-description/`.
 `evals/pr-description/`: fixture branch with 3 commits (feat + fix + docs) and a migration file; expected: migration called out under Risk, test plan uses the repo's real `make test`.

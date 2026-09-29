@@ -1,0 +1,82 @@
+{
+ "case": "test-gap-finder",
+ "date": "2026-09-29",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.284",
+ "exit": 0,
+ "seconds": 23.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git ls-files && ls -a && for f in $(git ls-files); do echo \\\"=== $f\\\"; cat \\\"$f\\\"; done; echo; git log --since=90.days --format='' --name-only | sort | uniq -c | sort -rn; wc -l $(git ls-"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"timeout 60 python -m pytest --cov=pkg --cov-report=term-missing -q -p no:cacheprovider 2>&1 | tail -15\", \"description\": \"Run pytest with coverage\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:test-gap-finder\"}"
+ ],
+ "last_message": "No test files were written. Only two modules have no tests, `pkg/auth.py` and `pkg/payments.py`, so there are two proposals rather than five. I couldn't get a coverage number because pytest isn't installed here (`No module named pytest`). The table below is based on grepping the tests for imports, plus git churn and file size.\n\n## Map\n\n| Rank | Module | Lines | Commits (last 90 days) | Critical path | Tests |\n|---|---|---|---|---|---|\n| 1 | `pkg/auth.py` | 10 | 4 (the most in the repo: `feat: initial` plus 3\u00d7 `fix(auth)`) | Yes (auth) | none |\n| 2 | `pkg/payments.py` | 4 | 1 | Yes (payments) | none |\n| \u2014 | `pkg/utils.py` | 2 | 1 | No | `tests/test_utils.py` (1 test) |\n| \u2014 | `pkg/__init__.py` | 0 | 1 | \u2014 | empty file, skipped |\n\n## Proposals\n\n### 1. `tests/test_auth.py`: `hash_password(p, salt)` and `verify(p, salt, h)`\nThis is the highest priority: it's security-critical, it has changed four times with no tests, and the recent \"tweak\" commits could quietly change the hash output.\n\n- **`test_hash_password_is_deterministic`**: the same `p` and `salt` should always give the same result.\n- **`test_hash_password_matches_known_vector`**: `hash_password(\"pw\", \"salt\")` should equal `hashlib.sha256(b\"saltpw\").hexdigest()`. This pins the salt-before-password order, so a future tweak that changes it fails the test.\n- **`test_hash_password_salt_changes_output`**: the same password with two different salts should give different hashes.\n- **`test_verify_accepts_correct_password`**: `verify(\"pw\", \"s\", hash_password(\"pw\", \"s\"))` should return `True`.\n- **`test_verify_rejects_wrong_password_or_salt`**: a wrong password should return `False`, and so should a wrong salt.\n- **`test_hash_password_empty_inputs`**: `hash_password(\"\", \"\")` should return the SHA-256 of an empty string rather than raising an error.\n\nWhile reading the code I noticed that `verify` compares with `==`, which isn't constant-time. `hmac.compare_digest` would be safer. That's a code fix rather than something to test, so I'm only mentioning it.\n\n### 2. `tests/test_payments.py`: `charge(amount_cents, currency=\"EUR\")`\n- **`test_charge_returns_amount_and_default_currency`**: `charge(100)` should return `{\"amount\": 100, \"currency\": \"EUR\"}`.\n- **`test_charge_custom_currency`**: `charge(100, \"USD\")[\"currency\"]` should be `\"USD\"`.\n- **`test_charge_minimum_positive_amount`**: `charge(1)` is the smallest valid amount and should succeed.\n- **`test_charge_rejects_zero_and_negative`**: `charge(0)` and `charge(-1)` should each raise `ValueError` with the message `\"amount must be positive\"`. Parametrizing covers both.\n\n`pkg/utils.py` already has a test and is tiny, so there's nothing to propose for it.\n\nTo run any of these you'd need pytest first (`pip install pytest pytest-cov`). Want me to write these two test files, following the plain-function style in `tests/test_utils.py`?",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "auth-top",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'auth\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "concrete-cases",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "no-files-written",
+   "type": "tool_used",
+   "tool": "Write",
+   "weight": 2,
+   "passed": true,
+   "detail": "Write calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "payments",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'payments\\\\.py' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

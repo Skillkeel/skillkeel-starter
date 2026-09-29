@@ -1,0 +1,99 @@
+{
+ "case": "claude-md-init",
+ "date": "2026-09-29",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.284",
+ "exit": 0,
+ "seconds": 30.0,
+ "turns": 7,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 3,
+  "Write": 1
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la; cat package.json 2>/dev/null; ls .github/workflows 2>/dev/null && cat .github/workflows/*.yml; cat Makefile pyproject.toml Cargo.toml go.mod 2>/dev/null | head -50; cat .nvmrc .py"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"ls -la src; head -30 src/*; cat pnpm-lock.yaml; ls node_modules 2>&1 | head -2; which pnpm; pnpm --version; pnpm run 2>&1 | head -20; pnpm test:ci 2>&1 | tail -5\", \"description\": \"Inspect"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cat .nvmrc; node --version 2>&1; ls .github; ls -a src; cat .gitignore 2>&1\", \"description\": \"Check Node version and remaining files\"}"
+  },
+  {
+   "name": "Write",
+   "input": "{\"content\": \"# CLAUDE.md\\n\\n## Project\\n`shop`: a private TypeScript app built with Vite, tested with Vitest, linted with ESLint.\\nNode 20 (`.nvmrc`), pnpm 9.0.0 (`packageManager` in `package.json`).\\"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:claude-md-init\"}"
+ ],
+ "last_message": "I wrote `CLAUDE.md` (38 lines), but none of the commands in it have been run. pnpm isn't installed on this machine and there's no `node_modules`. The skill requires running each command first. The only other way to check them was to install dependencies, which would change the repo, so I didn't.\n\nSo the commands are taken as written from `package.json` scripts and `.github/workflows/ci.yml`:\n\n- **Commands:** `pnpm i --frozen-lockfile`, `pnpm dev`, `pnpm test:ci`, `pnpm lint`, `pnpm build`. The file also says there's no `test` script, so `pnpm test` or `npm test` will fail; use `pnpm test:ci`, which is what CI runs.\n- **Single-test example:** `pnpm test:ci src/path/to/file.test.ts` is a guess based on how Vitest takes file filters. The repo has no test files yet, so this one is the least certain.\n- **Do not:** hand-edit `pnpm-lock.yaml`, since CI installs with `--frozen-lockfile`, and don't mix package managers.\n- **Verification:** `pnpm lint && pnpm test:ci`.\n- **Versions:** Node 20 from `.nvmrc` and pnpm 9.0.0. The Node installed here is v22.23.1, which doesn't match.\n- **Conventions:** Conventional Commits and `main` as the default branch. That's thin, because the history is a single `chore: init` commit.\n\nTo check the commands, run `corepack enable && pnpm i --frozen-lockfile && pnpm lint && pnpm test:ci` and tell me what to fix. The file isn't committed.\n\nSeparately, the Google Drive, HyperFrames by HeyGen and Notion connectors need to be authorized in your claude.ai connector settings before they'll work.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CLAUDE.md exists (want present)"
+  },
+  {
+   "name": "no-install-run",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 0 (min 0, max 0)"
+  },
+  {
+   "name": "not-npm-test",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '(?:^|\\\\n)(?![^\\\\n]*\\\\b(?:[Nn]o|[Nn]ot|[Nn]ever|[Dd]on.t|[Ii]nstead of|[Aa]void)\\\\b)[^\\\\n]*\\\\bnpm test\\\\b' not found in {source: file, path: CLAUDE.md} (not_contains)"
+  },
+  {
+   "name": "pnpm-test-ci",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern 'pnpm test:ci' found in {source: file, path: CLAUDE.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "under-100-lines",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  }
+ ],
+ "passed": true
+}

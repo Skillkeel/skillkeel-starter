@@ -18,5 +18,6 @@ description: Use when the user asks what to test next, where coverage is weak, o
 - Do not propose tests for generated code, vendored code, or trivial getters.
 - Proposed cases must be derivable from the code read in this session.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals test-gap-finder` from the plugin root runs this case and grades it; records and transcripts sit in `evals/test-gap-finder/`.
 `evals/test-gap-finder/`: fixture Python package with `auth.py` (untested, high churn), `utils.py` (tested), `payments.py` (untested); expected: auth.py and payments.py ranked top, utils.py not proposed, ≥2 concrete cases per proposal, no test files written.

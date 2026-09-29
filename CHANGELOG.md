@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.11 (2026-09-29)
+
+- secret-audit: new step 7. Before the final message, the skill re-reads its whole reply and masks every key-shaped string still shown in full (first 4 + last 2), placeholders and documentation examples included. On Claude Code 2.1.284 the findings table was masked, but a note quoted the AWS docs example key pair in full, although step 6 already forbade it. The masked grader caught it. Found by our own eval run on Claude Code 2.1.284.
+- evals: the pr-description grader `no-footer` now matches the footer itself (`Generated with [` or the robot line). The description had no footer, and the grader had tripped on the model's sentence saying it left the "Generated with Claude Code" footer off. The claude-md-init grader `not-npm-test` passes a line that rules `npm test` out ("There is no `test` script, so `npm test` will not work") and still fails any other line that names it. Both were grader faults. Found by our own eval run on Claude Code 2.1.284.
+- CHANGELOG: the 0.1.9 entry quoted the secret-scan test fixture, a Postgres URL with a password in it, and a scanner reads that as a committed secret. The entry now describes the fixture and says the same thing. Reported by sgharlow's skillcrossroads scan.
+- Each SKILL.md has a Verify section (was Eval) with the command that runs its case, `bash evals/run.sh /tmp/skillkeel-evals <skill>`, and the folder `evals/<skill>/` that holds the records and transcripts.
+- Transcript run on 2.1.284: 8 of 8 after the fixes (docs/compat.md). 79 hook tests, 32 record checks, CLI verb snapshot of 2026-09-28 (trufflehog 3.97.9). Hooks unchanged.
+
 ## 0.1.10 (2026-09-21)
 
 - docs: the 0.1.9 ZIP carried a docs/compat.md that still said 72 hook tests next to a README that said 79 (the table is generated after the eval run, which ran after the tag). Regenerated table with the 2.1.278 row of 2026-09-21 (8 of 8) and the 79 count; README release line. No code change; hooks, skills and tests as in 0.1.9.
@@ -7,7 +15,7 @@
 ## 0.1.9 (2026-09-21)
 
 - secret-scan: a credential name with a prefix now counts. The generic pattern started with a word boundary right before `api_key`, `secret`, `password` or `token`, and an underscore is a word character, so `SUPABASE_SERVICE_TOKEN = "..."`, `NOTION_SECRET = "..."` and `CLIENT_PASSWORD = '...'` were written without a word (1 of 5 .mcp.json-shaped lines caught on 2026-09-21). The pattern now takes any `[A-Za-z0-9_]` prefix; `token_count = "..."` and `MAX_TOKENS_PER_REQUEST` still pass because the name has to end at the key word.
-- secret-scan: new pattern for a connection URL with the password inline, `scheme://user:pass@host` (`postgres://app:S3cretPassw0rd9@db.internal:5432/app`). A password without a digit is read as a placeholder, so `postgres://user:password@localhost` in an `.env.example` passes. 79 hook tests (was 72). Found while checking a claim for an X reply about hardcoded secrets in public MCP configs; no user report.
+- secret-scan: new pattern for a connection URL with the password inline, `scheme://user:pass@host` (the test case is a Postgres URL whose password contains a digit). A password without a digit is read as a placeholder, so a Postgres URL with `user:password@localhost` in an `.env.example` passes. 79 hook tests (was 72). Found while checking a claim for an X reply about hardcoded secrets in public MCP configs; no user report.
 - evals: Claude Code 2.1.278 ships agents-md as a built-in plugin (init line path "builtin"); `evals/record.py` no longer counts built-in plugins as a leak in the isolation check, so a run with only built-ins beside this plugin passes. 32 record checks. Transcript run on 2.1.278: all cases pass (docs/compat.md).
 - guard-bash, session-start and the skills unchanged.
 

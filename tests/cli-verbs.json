@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-17",
+ "updated": "2026-09-28",
  "how": "tools/cli_verbs.py in the Skillkeel ops repo: latest GitHub release of each CLI, --help parsed; verbs = subcommands the help lists, hidden = subcommands that still run but are no longer listed, flags per verb the skills use ('' = global).",
  "clis": {
   "gitleaks": {
@@ -193,8 +193,8 @@
    }
   },
   "trufflehog": {
-   "version": "3.97.5",
-   "source": "https://github.com/trufflesecurity/trufflehog/releases/tag/v3.97.5",
+   "version": "3.97.9",
+   "source": "https://github.com/trufflesecurity/trufflehog/releases/tag/v3.97.9",
    "verbs": [
     "help",
     "git",

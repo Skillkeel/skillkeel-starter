@@ -32,5 +32,6 @@ Write commit messages from evidence (the diff), not from recollection.
 - Do not add "Co-Authored-By" or tool attribution unless the repo's CONTRIBUTING or the user asks for it.
 - If tests were not run, do not claim they pass in the message.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals commit-message` from the plugin root runs this case and grades it; records and transcripts sit in `evals/commit-message/`.
 `evals/commit-message/`: fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.

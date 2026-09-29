@@ -19,5 +19,6 @@ description: Use when the user asks to update or generate CHANGELOG.md, prepare 
 - Breaking changes get a **BREAKING:** prefix and go first in their section.
 - Do not bump `package.json`/`pyproject.toml` versions unless asked.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals changelog` from the plugin root runs this case and grades it; records and transcripts sit in `evals/changelog/`.
 `evals/changelog/`: fixture with tag v0.1.0 and 5 commits after it (2 feat, 1 fix, 1 chore, 1 feat!: breaking); expected: chore omitted, breaking first with prefix, entries under [Unreleased].

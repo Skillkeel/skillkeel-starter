@@ -6,6 +6,7 @@ Hook unit tests (`bash tests/test-hooks.sh`, current checkout): 79 passed, 0 fai
 
 | Claude Code | Date | Native eval cases | Transcript cases | Trigger prompts | Cost (USD) | Notes |
 |---|---|---|---|---|---|---|
+| 2.1.284 | 2026-09-29 | not run | 8/8 | not run | 0.00 |  |
 | 2.1.278 | 2026-09-21 | not run | 8/8 | not run | 0.00 |  |
 | 2.1.278 | 2026-09-20 | not run | 8/8 | not run | 0.00 |  |
 | 2.1.276 | 2026-09-19 | not run | 8/8 | not run | 0.00 |  |
@@ -15,4 +16,4 @@ Hook unit tests (`bash tests/test-hooks.sh`, current checkout): 79 passed, 0 fai
 | 2.1.270 | 2026-09-14 | 2/4 | not run | not run | 0.92 | failed: changelog, commit-message |
 | 2.1.270 | 2026-09-13 | not run | 8/8 | not run | 0.00 |  |
 
-Last generated 2026-09-21 by tools/compat.py in the Skillkeel ops repo. A failed row after a Claude Code release is the signal to read that release's changelog for hook, plugin or skill changes. Trigger prompts (`evals/run.sh --trigger`) are the same cases with a request that never names the skill; they test the description, the other columns test the skill.
+Last generated 2026-09-29 by tools/compat.py in the Skillkeel ops repo. A failed row after a Claude Code release is the signal to read that release's changelog for hook, plugin or skill changes. Trigger prompts (`evals/run.sh --trigger`) are the same cases with a request that never names the skill; they test the description, the other columns test the skill.

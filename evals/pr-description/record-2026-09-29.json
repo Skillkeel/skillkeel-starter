@@ -1,0 +1,90 @@
+{
+ "case": "pr-description",
+ "date": "2026-09-29",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.284",
+ "exit": 0,
+ "seconds": 20.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd <workdir>; git remote -v; git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>&1; git log --oneline main..HEAD; git diff --stat main...HEAD; git diff main...HEAD; ls -a; cat Makefil"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd <workdir>; cat Makefile; ls migrations\", \"description\": \"Show Makefile and migrations\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "Here's the PR description. I used local `main` as the base because the repo has no remote or upstream configured, so I didn't run `git fetch`. I didn't run the tests either.\n\n**Title:** `feat(orders): add optional note field to orders`\n\n```markdown\n## Summary\nOrders can now carry an optional free-text note. This PR adds a nullable `note` column to the `orders` table and accepts a `note` argument in `create_order`. Notes longer than 500 characters are rejected.\n\n## Changes\n- **Schema migration:** `migrations/0002_note.sql` adds `note TEXT` to `orders`. The column is nullable and has no default.\n- `orders.py`: new `create_order(note=None)`, which raises `ValueError(\"note too long\")` if `note` is over 500 characters.\n- `README.md`: mentions note support.\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`). Not run. The repo has no test files yet, so this proves nothing about the new code until tests are added.\n- [ ] Manual: apply `migrations/0002_note.sql` to a dev DB and check that `orders.note` exists and is nullable.\n- [ ] Manual: `create_order()` returns `{\"note\": None}`, `create_order(\"x\" * 500)` succeeds, and `create_order(\"x\" * 501)` raises `ValueError`.\n\n## Risk / rollback\n- **Migration:** the `ALTER TABLE ... ADD COLUMN` is additive and nullable, so it shouldn't affect existing rows. There is no down migration. Reverting the code (`git revert 4b5ad6c 1f4d0ca 09dd35b`) leaves the column in place. To remove it, run `ALTER TABLE orders DROP COLUMN note;` by hand.\n- The 500-character limit only exists in `create_order`. The database doesn't enforce it, so writes that bypass `create_order` can store longer notes.\n- An empty string is falsy, so `note=\"\"` skips the length check. That's harmless, but callers will get `\"\"` back rather than `None`.\n```\n\nI left off the \"Generated with Claude Code\" footer because the pr-description skill says not to add one unless you or the repo asks for it. Tell me if you want it added.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with \\\\[|\ud83e\udd16 Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}

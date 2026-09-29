@@ -24,5 +24,6 @@ description: Use when the user asks to check dependencies for vulnerabilities, o
 - Run the project's tests after every applied bump; revert the bump if tests fail and report.
 - If no audit tool is available and installing is not allowed, say so and stop at the outdated-list.
 
-## Eval
+## Verify
+Maintainers: `bash evals/run.sh /tmp/skillkeel-evals dependency-audit` from the plugin root runs this case and grades it; records and transcripts sit in `evals/dependency-audit/`.
 `evals/dependency-audit/`: fixture `package.json` with a pinned old `lodash` and a package-lock; expected: audit run, lodash listed with severity, patch bump proposed as Tier 1, no `--force`.

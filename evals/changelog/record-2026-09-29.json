@@ -1,0 +1,91 @@
+{
+ "case": "changelog",
+ "date": "2026-09-29",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.284",
+ "exit": 0,
+ "seconds": 16.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 1,
+  "Write": 1
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:changelog\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git describe --tags --abbrev=0; git log --no-merges --format='%h %s' $(git describe --tags --abbrev=0)..HEAD; ls; cat CHANGELOG.md 2>/dev/null\", \"description\": \"Find last tag, commits sin"
+  },
+  {
+   "name": "Write",
+   "input": "{\"content\": \"# Changelog\\n\\nAll notable changes to this project will be documented in this file.\\n\\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\\nand this project a"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:changelog\"}"
+ ],
+ "last_message": "The repo had no `CHANGELOG.md`, so I created one in the Keep a Changelog format. It covers the 5 commits since the last tag, `v0.1.0`. The new entries are all under `## [Unreleased]`:\n\n```markdown\n## [Unreleased]\n\n### Added\n\n- **BREAKING:** Node 16 is no longer supported.\n- `/health` API endpoint.\n- Export to CSV (#12).\n\n### Fixed\n\n- Importing no longer fails on empty rows.\n```\n\n- **Breaking change:** `d2e792d feat!: drop Node 16 support` is first under Added with a **BREAKING:** prefix. The skill files every `feat` under Added, though dropping support would arguably fit better under a \"Removed\" section. I can move it if you prefer.\n- **Left out:** `57b9e21 chore: bump eslint`, because it doesn't change anything for users.\n\nThe file isn't committed and I didn't tag a version. If you want to cut a release, I can turn `[Unreleased]` into a version number with today's date and suggest the `git tag` command.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "breaking-first",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '### Added\\\\s*\\\\n- \\\\*\\\\*BREAKING' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "chore-omitted",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'eslint' not found in {source: file, path: CHANGELOG.md} (not_contains)"
+  },
+  {
+   "name": "file-written",
+   "type": "file_exists",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "CHANGELOG.md exists (want present)"
+  },
+  {
+   "name": "issue-ref-kept",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '#12' found in {source: file, path: CHANGELOG.md} (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "unreleased",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern '## \\\\[Unreleased\\\\]' found in {source: file, path: CHANGELOG.md} (contains)"
+  }
+ ],
+ "passed": true
+}
