@@ -22,6 +22,14 @@ for s in $SK; do
   key=prompt; [ "$MODE" = trigger ] && key=trigger
   prompt=$(bash "evals/$s/fixture.sh" "$OUT/$s" | sed -n "s/^$key: //p")
   echo "== $s :: $prompt"
+  # a rerun on the same day keeps the earlier attempt instead of overwriting it (2026-09-29: an escape seen on one
+  # claude-md-init attempt disappeared when the passing rerun wrote the same record file)
+  if [ -f "evals/$s/record-$tag.json" ]; then
+    n=$(date +%H%M%S); mkdir -p "evals/$s/attempts"
+    for f in "evals/$s/record-$tag.json" "evals/$s/transcript-$tag.jsonl" "evals/$s/transcript-$tag.raw.md" "evals/$s/stderr-$tag.log"; do
+      [ -f "$f" ] && b=$(basename "$f") && mv "$f" "evals/$s/attempts/${b%%.*}-$n.${b#*.}"
+    done
+  fi
   t0=$(date +%s)
   ( cd "$OUT/$s" && timeout 600 claude -p --plugin-dir "$ROOT" --setting-sources project --permission-mode bypassPermissions --output-format stream-json --verbose "$prompt" ) > "evals/$s/transcript-$tag.jsonl" 2>"evals/$s/stderr-$tag.log"
   code=$?

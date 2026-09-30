@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- evals: a rerun on the same day no longer overwrites the earlier attempt. `evals/run.sh` moves the previous record, transcripts and stderr of that case into `evals/<case>/attempts/` with the time in the name. On 2026-09-29 one claude-md-init attempt listed a directory under `~/.cache` and the escapes check flagged it, then the passing rerun wrote over that record, so the finding was gone from the counts.
+
 ## 0.1.11 (2026-09-29)
 
 - secret-audit: new step 7. Before the final message, the skill re-reads its whole reply and masks every key-shaped string still shown in full (first 4 + last 2), placeholders and documentation examples included. On Claude Code 2.1.284 the findings table was masked, but a note quoted the AWS docs example key pair in full, although step 6 already forbade it. The masked grader caught it. Found by our own eval run on Claude Code 2.1.284.
