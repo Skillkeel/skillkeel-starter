@@ -36,7 +36,7 @@ Every call in the recording is the real hook fed the JSON Claude Code sends. Sti
 
 ## How it is tested
 
-The hooks have 79 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. The evals are rerun on every Claude Code release; the pass counts per version are in [docs/compat.md](docs/compat.md), and the run records and transcripts sit next to each case. You can read them before you install anything.
+The hooks have 79 unit tests in `tests/test-hooks.sh`. Each skill has a folder under `evals/` with a fixture repo, a list of expected results, and the unedited transcript of a real Claude Code run. The last run was on Claude Code 2.1.284 on 2026-09-29: 8 of 8 cases passed their scripted checks. The pass counts per version are in [docs/compat.md](docs/compat.md), and the run records and transcripts sit next to each case. You can read them before you install anything.
 
 [docs/compat.md](docs/compat.md) lists every Claude Code version the evals ran on, with the pass counts, generated from the results in this repo. Since 2026-09-18 the runner also has a trigger mode (`bash evals/run.sh --trigger`): the same eight cases with a request that never names the skill, such as "Commit the staged changes.", so the table shows whether the descriptions fire on a plain request and not only whether the invocation path works (first run: 8/8 on 2.1.276). Since 0.1.3 the eval runner also writes a run record per case (`evals/<skill>/record-<date>.json`: exit code, every tool call, skill invocations, grader verdicts that need no model) and `evals/cluster.py` groups failed cases by their first mechanical mismatch, so a runner or grader fault shows up as one bucket instead of eight transcript reads. The skill texts call four external CLIs (gitleaks, trufflehog, pip-audit, gh); `tests/test-cli-verbs.py` checks every subcommand and flag they name against `tests/cli-verbs.json`, a snapshot read from the latest release of each CLI, so a renamed subcommand fails the test before it fails for you.
 
@@ -94,4 +94,4 @@ python3 tests/test-evals-record.py  # eval record and cluster tools
 
 ## Paid version
 
-Skillkeel Kit (the Gumroad page shows the price and the total for your country) adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks: https://skillkeel.gumroad.com/l/skillkeel-kit
+Skillkeel Kit adds a ten-chapter playbook, 24 more skills in six packs, five more guard hooks, five subagents, three checklists, and CLAUDE.md templates for eight stacks. You can read one playbook chapter and one skill's eval case with its unedited transcript first: https://skillkeel.com/kit/preview/. The Kit is sold on Gumroad, which shows the price; checkout adds any VAT or sales tax due in your country: https://skillkeel.gumroad.com/l/skillkeel-kit
