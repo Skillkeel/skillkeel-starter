@@ -2,7 +2,7 @@
 
 Guard hooks and repo skills for [Claude Code](https://claude.com/claude-code). Free, MIT.
 
-Current release v0.1.11 (2026-09-29). Works with Claude Code 2.1.284 (evals 8 of 8; every version tried is in [docs/compat.md](docs/compat.md)).
+Current release v0.1.12 (2026-10-01). Works with Claude Code 2.1.284 (evals 8 of 8; every version tried is in [docs/compat.md](docs/compat.md)). The npx installer added in 0.1.12 was tested on 2.1.286.
 
 [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/skillkeel-skillkeel-starter)](https://www.claudepluginhub.com/plugins/skillkeel-skillkeel-starter?ref=badge)
 
@@ -53,12 +53,20 @@ Recommended, inside Claude Code:
 /plugin install skillkeel-starter@skillkeel
 ```
 
+From a terminal, the same two steps in one command (needs Node 18 or later and Claude Code on PATH):
+
+```
+npx skillkeel-starter
+```
+
+It runs the two `claude plugin` commands above and prints them as it goes; `npx skillkeel-starter uninstall` removes the plugin again.
+
 Or clone the repo and start Claude Code with `claude --plugin-dir ./skillkeel-starter`.
 
 To try it for one session without installing anything, load the release archive by URL (Claude Code fetches it at startup and forgets it when the session ends):
 
 ```
-claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.11.zip
+claude --plugin-url https://github.com/skillkeel/skillkeel-starter/archive/refs/tags/v0.1.12.zip
 ```
 
 The eight skills alone, without the three hooks, also install through `npx skills add skillkeel/skillkeel-starter -g -a claude-code`; that route copies `SKILL.md` folders and never a plugin's `hooks/hooks.json`, so guard-bash and secret-scan are not part of it.

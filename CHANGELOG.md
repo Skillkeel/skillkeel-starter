@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.12 (2026-10-01)
 
+- npx installer: `npx skillkeel-starter` runs `claude plugin marketplace add skillkeel/skillkeel-starter` and `claude plugin install skillkeel-starter@skillkeel` for you (`--scope user|project|local`, default user), and `update` and `uninstall` call the matching `claude plugin` commands. It copies no files and edits no settings itself; Claude Code does the install. Published to npm as `skillkeel-starter` (cli/install.js, no dependencies, Node 18 or later). Tested on Claude Code 2.1.286 in an empty home directory: install, a second install, update and uninstall.
 - evals: a rerun on the same day no longer overwrites the earlier attempt. `evals/run.sh` moves the previous record, transcripts and stderr of that case into `evals/<case>/attempts/` with the time in the name. On 2026-09-29 one claude-md-init attempt listed a directory under `~/.cache` and the escapes check flagged it, then the passing rerun wrote over that record, so the finding was gone from the counts.
 
 ## 0.1.11 (2026-09-29)

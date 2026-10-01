@@ -1,0 +1,21 @@
+{
+  "name": "skillkeel-starter",
+  "version": "0.1.12",
+  "description": "Installs the Skillkeel Starter Claude Code plugin: guard hooks for destructive shell commands and secrets, plus eight tested repo skills.",
+  "license": "MIT",
+  "author": "Skillkeel <hi@skillkeel.com>",
+  "homepage": "https://github.com/skillkeel/skillkeel-starter#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/skillkeel/skillkeel-starter.git" },
+  "bugs": { "url": "https://github.com/skillkeel/skillkeel-starter/issues" },
+  "keywords": ["claude-code", "claude-code-plugin", "hooks", "pretooluse", "guard", "secrets", "skills"],
+  "bin": { "skillkeel-starter": "cli/install.js" },
+  "engines": { "node": ">=18" },
+  "files": [
+    "cli/",
+    ".claude-plugin/",
+    "hooks/",
+    "skills/",
+    "docs/compat.md",
+    "CHANGELOG.md"
+  ]
+}
