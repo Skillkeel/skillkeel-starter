@@ -56,10 +56,10 @@ Recommended, inside Claude Code:
 From a terminal, the same two steps in one command (needs Node 18 or later and Claude Code on PATH):
 
 ```
-npx skillkeel-starter
+npx github:skillkeel/skillkeel-starter
 ```
 
-It runs the two `claude plugin` commands above and prints them as it goes; `npx skillkeel-starter uninstall` removes the plugin again.
+It runs the two `claude plugin` commands above and prints them as it goes; `npx github:skillkeel/skillkeel-starter uninstall` removes the plugin again. The package is not on the npm registry yet, so the command fetches it from this repository.
 
 Or clone the repo and start Claude Code with `claude --plugin-dir ./skillkeel-starter`.
 
