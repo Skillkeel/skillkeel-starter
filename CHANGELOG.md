@@ -1,8 +1,14 @@
 # Changelog
 
+## 0.1.13 (2026-10-11)
+
+- guard-bash and secret-scan now refuse when they cannot read the hook input. Before, guard-bash fell back to matching the raw JSON when python3 was not on PATH, and that let `rm -rf /`, `rm -rf ~`, `rm -rf .`, `git reset --hard` and `mkfs` through with exit 0; secret-scan exited 127, which Claude Code treats as a non-blocking error, so the write went ahead. guard-bash now reads the command with python3, else jq, and exits 2 if neither can parse the payload; secret-scan exits 2 when python3 is missing. The session overrides (`SKILLKEEL_ALLOW_DANGEROUS=1`, `SKILLKEEL_ALLOW_SECRETS=1`) still work without python3.
+- README: the npx installer runs from GitHub (`npx github:skillkeel/skillkeel-starter`); the package is not on the npm registry yet.
+- Tests: 89 hook cases (was 79), including runs with python3 and jq removed from PATH, jq alone, and an unparseable payload.
+
 ## 0.1.12 (2026-10-01)
 
-- npx installer: `npx skillkeel-starter` runs `claude plugin marketplace add skillkeel/skillkeel-starter` and `claude plugin install skillkeel-starter@skillkeel` for you (`--scope user|project|local`, default user), and `update` and `uninstall` call the matching `claude plugin` commands. It copies no files and edits no settings itself; Claude Code does the install. Published to npm as `skillkeel-starter` (cli/install.js, no dependencies, Node 18 or later). Tested on Claude Code 2.1.286 in an empty home directory: install, a second install, update and uninstall.
+- npx installer: `npx skillkeel-starter` runs `claude plugin marketplace add skillkeel/skillkeel-starter` and `claude plugin install skillkeel-starter@skillkeel` for you (`--scope user|project|local`, default user), and `update` and `uninstall` call the matching `claude plugin` commands. It copies no files and edits no settings itself; Claude Code does the install. Packaged for npm as `skillkeel-starter` but not published there yet; until it is, run it as `npx github:skillkeel/skillkeel-starter` (cli/install.js, no dependencies, Node 18 or later). Tested on Claude Code 2.1.286 in an empty home directory: install, a second install, update and uninstall.
 - evals: a rerun on the same day no longer overwrites the earlier attempt. `evals/run.sh` moves the previous record, transcripts and stderr of that case into `evals/<case>/attempts/` with the time in the name. On 2026-09-29 one claude-md-init attempt listed a directory under `~/.cache` and the escapes check flagged it, then the passing rerun wrote over that record, so the finding was gone from the counts.
 
 ## 0.1.11 (2026-09-29)

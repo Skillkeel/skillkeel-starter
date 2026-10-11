@@ -1,6 +1,6 @@
 {
   "name": "skillkeel-starter",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Installs the Skillkeel Starter Claude Code plugin: guard hooks for destructive shell commands and secrets, plus eight tested repo skills.",
   "license": "MIT",
   "author": "Skillkeel <hi@skillkeel.com>",

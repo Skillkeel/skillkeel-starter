@@ -3,8 +3,19 @@
 # Input: hook JSON on stdin. Exit 2 + stderr = block (Claude sees the reason). Exit 0 = allow.
 set -u
 input=$(cat)
-cmd=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tool_input",{}).get("command",""))' 2>/dev/null || printf '%s' "$input")
 [ -n "${SKILLKEEL_ALLOW_DANGEROUS:-}" ] && exit 0
+# Read the command with python3, else jq. If neither can parse the payload, refuse: matching the raw JSON let
+# rm -rf / through when python3 was missing (0.1.12 and earlier).
+if command -v python3 >/dev/null 2>&1; then
+  if cmd=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tool_input",{}).get("command",""))' 2>/dev/null); then ok=0; else ok=1; fi
+elif command -v jq >/dev/null 2>&1; then
+  if cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""' 2>/dev/null); then ok=0; else ok=1; fi
+else
+  ok=1
+fi
+if [ "$ok" != 0 ]; then
+  printf 'skillkeel guard-bash: blocked (could not read the hook input: python3 or jq is needed). If intended, ask the user; they can set SKILLKEEL_ALLOW_DANGEROUS=1 for this session.\n' >&2; exit 2
+fi
 
 block() { printf 'skillkeel guard-bash: blocked (%s). Command: %s\nIf intended, ask the user; they can set SKILLKEEL_ALLOW_DANGEROUS=1 for this session.\n' "$1" "$cmd" >&2; exit 2; }
 

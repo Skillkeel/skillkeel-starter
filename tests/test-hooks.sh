@@ -38,6 +38,16 @@ t 2 secret-scan "$(W 'settings.py' "CLIENT_PASSWORD = 'Sup3rS3cretPassw0rd!'")";
 t 0 secret-scan "$(W '.env.example' 'API_KEY=your-key-here')"; t 0 secret-scan "$(W 'src/main.py' 'password = os.environ["PASSWORD"]')"; t 0 secret-scan "$(W 'README.md' 'AKIAIOSFODNN7EXAMPLE is an example key')"
 t 0 secret-scan "$(W 'test.py' 'token = get_token()')"; t 0 secret-scan "$(W 'a.py' 'x = 1')"
 t 0 secret-scan "$(W '.env.example' 'DATABASE_URL=postgres://user:password@localhost:5432/app')"; t 0 secret-scan "$(W 'a.py' 'token_count = "abcdefghijklmnop"')"; t 0 secret-scan "$(W 'b.py' 'MAX_TOKENS_PER_REQUEST = "128000"')"
+# no python3 on PATH (reported 2026-10-11): the hooks fail closed instead of matching raw JSON and allowing
+nopy=$(mktemp -d); for f in /usr/bin/* /bin/*; do case "$(basename "$f")" in python*|jq) ;; *) ln -sf "$f" "$nopy/$(basename "$f")" 2>/dev/null;; esac; done
+tn() { out=$(printf '%s' "$3" | PATH="$nopy" bash "hooks/$2" 2>&1); code=$?
+  if [ "$code" = "$1" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL [$2 no python] expected $1 got $code :: $3"; echo "     $out" | head -2; fi; }
+tn 2 guard-bash "$(B 'rm -rf /')"; tn 2 guard-bash "$(B 'rm -rf ~')"; tn 2 guard-bash "$(B 'git reset --hard')"; tn 2 guard-bash "$(B 'ls')"
+tn 2 secret-scan "$(W 'a.py' 'x = 1')"
+out=$(printf '%s' "$(B 'ls')" | PATH="$nopy" SKILLKEEL_ALLOW_DANGEROUS=1 bash hooks/guard-bash 2>&1); [ $? = 0 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "FAIL override must still allow without python"; }
+t 2 guard-bash 'not json {'
+ln -sf "$(command -v jq)" "$nopy/jq" 2>/dev/null && [ -x "$nopy/jq" ] && { tn 2 guard-bash "$(B 'rm -rf /')"; tn 2 guard-bash "$(B 'git reset --hard')"; tn 0 guard-bash "$(B 'ls -la')"; }
+rm -rf "$nopy"
 # session-start: valid JSON with additionalContext
 out=$(printf '{}' | bash hooks/session-start); printf '%s' "$out" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "additionalContext" in d["hookSpecificOutput"]' && pass=$((pass+1)) || { fail=$((fail+1)); echo "FAIL session-start json"; }
 echo "hooks: $pass passed, $fail failed"; [ "$fail" = 0 ]
