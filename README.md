@@ -85,6 +85,8 @@ echo '{"tool_input":{"command":"git push --force origin main"}}' | bash hooks/gu
 
 It prints `skillkeel guard-bash: blocked (git push --force (use --force-with-lease)). Command: git push --force origin main` and exits 2. The same line with `--force-with-lease` exits 0 and prints nothing.
 
+The paid Kit adds five more guard hooks and 24 more skills; you can read one of its chapters and one eval transcript before buying: https://skillkeel.com/kit/preview/
+
 ## Turning a guard off for one session
 
 ```
