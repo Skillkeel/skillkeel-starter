@@ -5,3 +5,5 @@ evals/results/
 evals/_*.log
 evals/*/transcript-*.jsonl
 evals/*/stderr-*.log
+evals/*/attempts/*.jsonl
+evals/*/attempts/*.log

@@ -12,8 +12,8 @@ description: Use when the user asks to check dependencies for vulnerabilities, o
    - Python: `pip-audit -f json` (or `pip install pip-audit` in a venv if allowed) ; fallback `pip list --outdated`
    - Rust: `cargo audit --json` ; Go: `govulncheck ./...` ; Ruby: `bundle audit` ; PHP: `composer audit`
 3. Summarise: table of `package | installed | severity | fixed in | direct/transitive | breaking?`. Sort by severity.
-4. Propose fixes in tiers:
-   - **Tier 1 (do now):** patch/minor bumps of direct deps with a fix available. Apply with the package manager (`npm install pkg@^x.y.z`), run the test suite, show the lockfile diff summary.
+4. Fix in tiers:
+   - **Tier 1 (do now):** patch/minor bumps of direct deps with a fix available. Apply it in the user's repo with the package manager (`npm install pkg@^x.y.z`) without asking, unless the user said not to change anything; a bump tried only in a scratch copy is not applied. Run the test suite, show the lockfile diff summary.
    - **Tier 2 (ask first):** major bumps or transitive overrides (`overrides`/`resolutions`).
    - **Tier 3 (document):** no fix available → note in `SECURITY.md` or an issue with the advisory link.
 5. Re-run the audit and paste the before/after counts.

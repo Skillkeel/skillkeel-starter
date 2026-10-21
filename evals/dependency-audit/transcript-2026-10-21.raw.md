@@ -1,45 +1,50 @@
-No lockfile is committed, so `npm audit` can't run directly. I'll generate one in a scratch copy to keep the repo untouched.
+No lockfile is present, and `npm audit` needs one. I'll make one in a scratch copy for the "before" audit so the repo stays untouched until a fix is applied.
 
-I found one vulnerable package. The fix is a minor bump, and I haven't applied it because you asked for proposals only. The repo is unchanged.
+The fix needs a version above 4.17.23, so 4.18.x. I'll check whether 4.18.0, the lowest one, clears everything:
 
-**How I ran the audit:** this is an npm project (`package.json` only), and the repo has no `package-lock.json`, which `npm audit` needs. I generated a lockfile with `npm install --package-lock-only --ignore-scripts` in a throwaway directory (`/tmp/tmp.u5PlNMy9v5`) and ran `npm audit --json` there.
+I upgraded `lodash` from 4.17.15 to 4.18.1. That clears all six advisories against it, and the audit now finds 0 vulnerabilities. The repo has no test suite, so a quick check that the library loads and works is the only testing done.
 
-## Findings
+**Ecosystem:** npm only (`package.json`). The repo had no lockfile and `npm audit` needs one, so I ran the "before" audit on a scratch copy.
+
+## Findings (before)
 
 | package | installed | severity | fixed in | direct/transitive | breaking? |
 |---|---|---|---|---|---|
-| lodash | 4.17.15 | **high** | 4.18.0 | direct | no (minor bump, `isSemVerMajor: false`) |
+| lodash | 4.17.15 | **high** | 4.18.1 | direct | No (minor bump) |
 
-Advisories against 4.17.15:
+The six advisories it was exposed to:
+- [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm): Command injection (high, <4.17.21)
+- [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw): Prototype pollution (high, <4.17.19)
+- [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc): Code injection via `_.template` imports (high, ≤4.17.23)
+- [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9): ReDoS (moderate, <4.17.21)
+- [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh): Prototype pollution in `_.unset`/`_.omit` (moderate, ≤4.17.23)
+- [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg): Prototype pollution in `_.unset`/`_.omit` (moderate, ≤4.17.22)
 
-| severity | advisory | affected range |
-|---|---|---|
-| high (8.1) | Code injection via `_.template` imports key names: [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) | ≤4.17.23 |
-| high (7.4) | Prototype pollution: [GHSA-p6mc-m468-83gw](https://github.com/advisories/GHSA-p6mc-m468-83gw) | <4.17.19 |
-| high (7.2) | Command injection: [GHSA-35jh-r3h4-6jhm](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) | <4.17.21 |
-| moderate | Prototype pollution in `_.unset`/`_.omit` (array path bypass): [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh) | ≤4.17.23 |
-| moderate | Prototype pollution in `_.unset`/`_.omit`: [GHSA-xxjr-mmjv-4gpg](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg) | ≤4.17.22 |
-| moderate | ReDoS: [GHSA-29mw-wpgm-hmr9](https://github.com/advisories/GHSA-29mw-wpgm-hmr9) | <4.17.21 |
+## Fixes by tier
 
-The newest 4.17.x on the registry is 4.17.23, which is still affected. The lowest version that fixes everything is 4.18.0.
+**Tier 1 (applied):** `npm install lodash@4.18.1 --save-exact`
+- 4.17.21 isn't enough, because two of the advisories also cover 4.17.22 and 4.17.23. The fix needs 4.18.x.
+- 4.18.0 also clears the audit, but npm marks it deprecated ("Bad release"). 4.18.1 is the lowest version that is both fixed and usable.
+- I kept the exact version pin you already had. Nothing was committed and `npm audit fix --force` wasn't used.
 
-## Proposed fixes
-
-**Tier 1 (do now, minor bump of a direct dependency):**
-```sh
-npm install lodash@4.18.0 --save-exact
-```
-This keeps your current exact-pin style and doesn't go past what the advisories require. npm's own suggestion is 4.18.1, the latest patch, which I also checked and which is just as clean. Either one is fine.
-
-I'd also suggest committing the resulting `package-lock.json`. Without a lockfile, installs aren't reproducible and `npm audit` can't run in CI.
-
-**Tier 2 (major bumps or overrides):** none needed.
-
+**Tier 2 (major bumps / overrides):** none needed.
 **Tier 3 (no fix available):** none.
 
-## Before / after (in the scratch copy)
-- Before (4.17.15): 1 package, high severity (the 6 advisories above).
-- After 4.18.0: 0 vulnerabilities.
-- After 4.18.1: 0 vulnerabilities.
+## Testing
+There's no `test` script. As a basic check, `require("lodash")` reports version 4.18.1, and `_.get` and `_.template` both work.
 
-The repo has no test suite, so there was nothing to run against the bump. If you want me to apply the Tier 1 change, I'll update `package.json`, add the lockfile and re-run the audit in the repo.
+## Before / after
+
+| | high | moderate | total |
+|---|---|---|---|
+| Before | 1 | 0 | 1 |
+| After | 0 | 0 | **0** |
+
+(npm groups all six advisories under one package entry, which is why "before" shows 1.)
+
+## Working tree changes
+- `package.json`: `lodash` changed from `4.17.15` to `4.18.1` (one line).
+- `package-lock.json` is **new**. It holds one package, `lodash@4.18.1`, with its integrity hash. I suggest committing it so future audits work and installs are repeatable.
+- `node_modules/` is now untracked and there's no `.gitignore`. Add one with `node_modules/` before committing.
+
+To undo the upgrade: `git checkout package.json && rm -rf package-lock.json node_modules`.

@@ -34,4 +34,4 @@ Write commit messages from evidence (the diff), not from recollection.
 
 ## Verify
 Maintainers: `bash evals/run.sh /tmp/skillkeel-evals commit-message` from the plugin root runs this case and grades it; records and transcripts sit in `evals/commit-message/`.
-`evals/commit-message/`: fixture repo with a staged two-file bug fix; expected: `fix(...)` subject ≤ 50 chars, body mentions the off-by-one, no unrelated files described.
+`evals/commit-message/`: fixture repo with two new staged Python files; expected: `feat` subject ≤ 50 chars, imperative, describes only the staged files, no tool trailer, `git log -1 --stat` shown after the commit.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.14 (2026-10-21)
+
+- dependency-audit: step 4 is now "Fix in tiers". Tier 1 (patch or minor bumps of direct dependencies with a fix) is applied in the user's repo without asking, unless the user said not to change anything; a bump tried only in a scratch copy does not count as applied. On Claude Code 2.1.306 with claude-opus-5-5 the case ran the audit in a scratch copy, proposed the lodash bump and asked instead of applying it, twice, so the bumped check failed. After the change the rerun applied it and passed (evals/dependency-audit/transcript-2026-10-21.md).
+- evals: the readme-refresh grader `deadlink-handled` no longer uses `(?s)`, `\A` or `\Z`. The native `claude plugin eval` engine rejected the pattern ("Invalid regular expression") and the case crashed; the new pattern matches the same cases in Python and JavaScript.
+- commit-message: the Verify line describes the fixture as it is (two new staged files, a `feat` subject).
+- evals: `evals/record.py` records the model next to the Claude Code version; attempt logs and raw JSONL under `evals/*/attempts/` are ignored by git.
+- Run on 2.1.306: native eval 2 of 2, transcripts 8 of 8 (docs/compat.md). 89 hook tests, 33 record checks. Hooks unchanged.
+
 ## 0.1.13 (2026-10-11)
 
 - guard-bash and secret-scan now refuse when they cannot read the hook input. Before, guard-bash fell back to matching the raw JSON when python3 was not on PATH, and that let `rm -rf /`, `rm -rf ~`, `rm -rf .`, `git reset --hard` and `mkfs` through with exit 0; secret-scan exited 127, which Claude Code treats as a non-blocking error, so the write went ahead. guard-bash now reads the command with python3, else jq, and exits 2 if neither can parse the payload; secret-scan exits 2 when python3 is missing. The session overrides (`SKILLKEEL_ALLOW_DANGEROUS=1`, `SKILLKEEL_ALLOW_SECRETS=1`) still work without python3.
