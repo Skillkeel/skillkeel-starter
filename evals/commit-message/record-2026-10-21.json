@@ -1,0 +1,83 @@
+{
+ "case": "commit-message",
+ "date": "2026-10-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.306",
+ "model": "claude-opus-5-5",
+ "exit": 0,
+ "seconds": 18.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:commit-message\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git status --porcelain && git diff --cached --stat && git diff --cached; ls; cat CONTRIBUTING* 2>/dev/null\", \"description\": \"Inspect staged changes\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"git commit -m \\\"$(cat <<'MSG'\\nfeat(calc): add clamp function\\nMSG\\n)\\\" && git log -1 --stat\", \"description\": \"Commit staged changes and show result\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:commit-message\"}"
+ ],
+ "last_message": "I committed the staged changes as `32d11c0` with the message:\n\n```\nfeat(calc): add clamp function\n```\n\nThe commit adds `clamp(x, lo, hi)` to `calc.py` and a new `test_calc.py` with one test for it. I didn't run the test, so the message doesn't say it passes.\n\n- **This won't pass the skill's eval.** The skill's Verify section expects a `fix(...)` commit whose body mentions an off-by-one. The staged diff is a new function with nothing changed in existing code, so there's no bug fix to describe. I went by the diff, as the skill requires. Either the fixture has the wrong changes staged or the expected result is out of date.\n- **No body or Co-Authored-By line.** The diff already explains itself, so I left out a body. I also left out the attribution trailer, because the skill says not to add one unless the repo or you ask. If you want it, I can amend the commit.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "committed",
+   "type": "tool_used",
+   "tool": "Bash",
+   "weight": 1,
+   "passed": true,
+   "detail": "Bash calls matching: 1 (min 1)"
+  },
+  {
+   "name": "no-trailer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Co-Authored-By:|Generated with \\\\[' not found in trace (not_contains)"
+  },
+  {
+   "name": "quality",
+   "type": "llm",
+   "tool": null,
+   "weight": 1,
+   "passed": null,
+   "detail": "llm: needs a model run"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  },
+  {
+   "name": "subject-format",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '(?:feat|fix|refactor|perf|docs|test|build|ci|chore)(?:\\\\([\\\\w./-]+\\\\))?: [^\\\\n\"]{1,50}' found in trace (contains)"
+  }
+ ],
+ "passed": true
+}

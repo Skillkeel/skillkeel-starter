@@ -1,0 +1,4 @@
+# readme-refresh: run 2026-10-21, Claude Code 2.1.306
+Raw output: `transcript-2026-10-21.raw.md` (unedited). Record: `record-2026-10-21.json` (model claude-opus-5-5, plugins: skillkeel-starter only, escapes none). Fixture: `fixture.sh`.
+Run on 2.1.306: deadlink-handled PASS (broken docs/api.md link removed, `<!-- TODO: verify -->` left in the Docs section) · dev-fixed PASS · prose-kept PASS · skill-fired PASS · start-gone PASS. Verdict: PASS.
+Note: the native `claude plugin eval` run of the same day scored 0.83 on this case because the deadlink-handled grader threw in the native engine ("Invalid regular expression: unrecognized character after (?"): the pattern uses Python syntax (`(?s)`, `\A`, `\Z`) that the native JS engine rejects. Grader portability, not a skill result; the transcript runner (Python re) grades it.

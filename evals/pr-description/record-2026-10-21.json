@@ -1,0 +1,91 @@
+{
+ "case": "pr-description",
+ "date": "2026-10-21",
+ "workdir": "<workdir>",
+ "claude_version": "2.1.306",
+ "model": "claude-opus-5-5",
+ "exit": 0,
+ "seconds": 30.0,
+ "turns": 5,
+ "result_subtype": "success",
+ "is_error": false,
+ "tool_counts": {
+  "Skill": 1,
+  "Bash": 2
+ },
+ "tools": [
+  {
+   "name": "Skill",
+   "input": "{\"skill\": \"skillkeel-starter:pr-description\"}"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd <workdir>; git remote -v; git log --oneline main..HEAD; git diff --stat main...HEAD; git diff main...HEAD; ls; cat Makefile package.json pyproject.toml CONTRIBUTING* 2>/dev/null\", \"des"
+  },
+  {
+   "name": "Bash",
+   "input": "{\"command\": \"cd <workdir>; cat Makefile; git show --stat HEAD~2 HEAD~1 | grep -E '^ |^commit'\", \"description\": \"Read Makefile and commit file stats\"}"
+  }
+ ],
+ "skills": [
+  "{\"skill\": \"skillkeel-starter:pr-description\"}"
+ ],
+ "last_message": "**Title:** `feat(orders): add optional note field to orders`\n\n```markdown\n## Summary\nOrders can now carry an optional free-text note. A migration adds a nullable `note` column to `orders`, and `create_order` accepts a `note` argument and rejects anything over 500 characters. No linked issue.\n\n## Changes\n- `migrations/0002_note.sql`: **schema change**, `ALTER TABLE orders ADD COLUMN note TEXT;` (nullable, no default)\n- `orders.py`: `create_order(note=None)` returns the note on the order and raises `ValueError(\"note too long\")` when `len(note) > 500`\n- `README.md`: notes that orders support notes\n\n## Test plan\n- [ ] `make test` (runs `python -m pytest -q`): not run. The branch adds no tests, so add cases for `note=None`, a 500-character note (accepted) and a 501-character note (`ValueError`)\n- [ ] Apply `migrations/0002_note.sql` to a copy of the database and check that existing rows get `note = NULL`\n\n## Risk / rollback\n- **Migration:** `ADD COLUMN` on `orders` is nullable with no default, so it should be cheap on most engines. Still, check lock behaviour on a large table before deploying. Reverting the code does not drop the column. If a full rollback is needed, write a down migration (`ALTER TABLE orders DROP COLUMN note;`).\n- The 500-character limit is only enforced in `create_order`, not in the database. Writes that skip this function can still store longer notes.\n- Code rollback: `git revert cb819e3 d25bdca b576c77`.\n```\n\nI compared against local `main` because the repo has no `origin` remote, so I couldn't fetch first. The only test command in the repo is `make test`, and I didn't run it. I left off the \"Generated with Claude Code\" footer because the pr-description skill says not to add one.",
+ "plugins": [
+  "skillkeel-starter"
+ ],
+ "extra_plugins": [],
+ "escapes": [],
+ "mode": "named",
+ "graders": [
+  {
+   "name": "migration-called-out",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'migration' found in last_message (contains)"
+  },
+  {
+   "name": "no-fake-npm",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'npm test' not found in last_message (not_contains)"
+  },
+  {
+   "name": "no-footer",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'Generated with \\\\[|\ud83e\udd16 Generated with' not found in last_message (not_contains)"
+  },
+  {
+   "name": "real-test-command",
+   "type": "regex",
+   "tool": null,
+   "weight": 1,
+   "passed": true,
+   "detail": "pattern 'make test|python -m pytest' found in last_message (contains)"
+  },
+  {
+   "name": "sections",
+   "type": "regex",
+   "tool": null,
+   "weight": 2,
+   "passed": true,
+   "detail": "pattern '## Summary[\\\\s\\\\S]*## Changes[\\\\s\\\\S]*## Test plan[\\\\s\\\\S]*## Risk' found in last_message (contains)"
+  },
+  {
+   "name": "skill-fired",
+   "type": "tool_used",
+   "tool": "Skill",
+   "weight": 1,
+   "passed": true,
+   "detail": "Skill calls matching: 1 (min 1)"
+  }
+ ],
+ "passed": true
+}
