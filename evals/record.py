@@ -63,6 +63,7 @@ def parse_stream(path):
         t = ev.get("type")
         if t == "system" and ev.get("subtype") == "init":
             result["version"] = ev.get("claude_code_version") or ev.get("version") or ""
+            result["model"] = ev.get("model") or ""
             # built-in plugins (Claude Code 2.1.278 ships agents-md with path "builtin") load in every run and are not a leak
             result["plugins"] = [p.get("name", "") for p in ev.get("plugins", []) if isinstance(p, dict)
                                  and p.get("path") != "builtin" and not str(p.get("source", "")).endswith("@builtin")]
@@ -181,7 +182,7 @@ def main():
     outside = escapes(tools, workdir)
     rec = {
         "case": case, "date": date, "workdir": scrub(workdir),
-        "claude_version": result.get("version") or "",
+        "claude_version": result.get("version") or "", "model": result.get("model") or "",
         "exit": exit_code, "seconds": float(seconds), "turns": result.get("num_turns"),
         "result_subtype": result.get("subtype"), "is_error": bool(result.get("is_error")),
         "tool_counts": counts, "tools": [{"name": t["name"], "input": t["input"][:200]} for t in tools],

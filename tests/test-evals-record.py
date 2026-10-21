@@ -42,7 +42,7 @@ def stream(lines):
 
 
 GOOD = stream([
-    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272"}),
+    json.dumps({"type": "system", "subtype": "init", "claude_code_version": "2.1.272", "model": "claude-opus-4-8"}),
     event_assistant(tool("Skill", skill=f"skillkeel-starter:{CASE}")),
     event_assistant(tool("Bash", command="git log -p --all | grep -E AKIA")),
     event_assistant(text("Found .env in b5f562a, only in history. Key AKIA****LE. Rotate first, then remove; no history rewrite run.")),
@@ -120,6 +120,7 @@ def main():
         check(rec["passed"] is True, f"good run should pass: {out}")
         check(rec["tool_counts"] == {"Skill": 1, "Bash": 1}, f"tool counts {rec['tool_counts']}")
         check(rec["claude_version"] == "2.1.272", "version from result event")
+        check(rec["model"] == "claude-opus-4-8", "model from init event")
         check(str(ROOT) not in rec["last_message"] and str(Path.home()) not in rec["last_message"] and "<plugin>" in rec["last_message"], f"machine paths scrubbed: {rec['last_message'][-80:]}")
         check(rec["workdir"] == "<workdir>" and str(root) not in json.dumps(rec), f"workdir scrubbed: {rec['workdir']}")
         check((root / "evals" / CASE / "transcript-2026-09-17.raw.md").read_text().startswith("Found .env"), "raw transcript holds assistant text")
